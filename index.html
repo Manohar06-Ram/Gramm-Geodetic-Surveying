@@ -1,0 +1,4022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRAMM Geodetic Surveying Development Inc.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    
+    <!-- LEAFLET CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+    <style>
+        :root {
+            --primary: #0B1D51;
+            --primary-light: #1A3A8A;
+            --secondary: #2563EB;
+            --accent: #3B82F6;
+            --accent-light: #60A5FA;
+            --gold: #D4A843;
+            --gold-light: #F0D078;
+            --white: #FFFFFF;
+            --light: #F8FAFC;
+            --gray-100: #F1F5F9;
+            --gray-200: #E2E8F0;
+            --gray-300: #CBD5E1;
+            --gray-400: #94A3B8;
+            --gray-500: #64748B;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1E293B;
+            --gray-900: #0F172A;
+            --gradient-primary: linear-gradient(135deg, #0B1D51 0%, #1A3A8A 50%, #2563EB 100%);
+            --gradient-accent: linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #60A5FA 100%);
+            --gradient-gold: linear-gradient(135deg, #D4A843 0%, #F0D078 100%);
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.1);
+            --shadow-lg: 0 25px 50px -12px rgba(0,0,0,0.25);
+            --shadow-xl: 0 35px 60px -15px rgba(0,0,0,0.3);
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--gray-700);
+            background: var(--white);
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        /* ===== LANGUAGE SELECTOR ===== */
+        .language-selector {
+            position: relative;
+            margin-left: 15px;
+        }
+
+        .language-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: var(--white);
+            padding: 8px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .language-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .language-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        .language-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .language-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .language-option:last-child {
+            border-bottom: none;
+        }
+
+        .language-option:hover {
+            background: var(--light);
+            padding-left: 20px;
+        }
+
+        .language-option.active {
+            background: var(--light);
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .language-flag {
+            font-size: 1.2rem;
+        }
+
+        /* ===== PRELOADER ===== */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        .preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .preloader-content {
+            text-align: center;
+        }
+
+        .preloader-logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background: var(--white);
+            border-radius: 50%;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preloader-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .preloader-bar {
+            width: 200px;
+            height: 3px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .preloader-bar::after {
+            content: '';
+            display: block;
+            width: 40%;
+            height: 100%;
+            background: var(--gold);
+            border-radius: 10px;
+            animation: preloaderAnim 1s ease-in-out infinite;
+        }
+
+        @keyframes preloaderAnim {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(350%); }
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 20px 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .navbar.scrolled {
+            background: rgba(11, 29, 81, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 12px 0;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.2);
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .nav-logo-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--white);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .nav-logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .nav-logo-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+        }
+
+        .nav-logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-logo-text .brand {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--white);
+            letter-spacing: 3px;
+            line-height: 1.2;
+        }
+
+        .nav-logo-text .sub {
+            font-size: 0.65rem;
+            color: var(--gold);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 8px 18px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--white);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-cta {
+            background: var(--gradient-gold) !important;
+            color: var(--primary) !important;
+            font-weight: 600 !important;
+            padding: 10px 24px !important;
+            box-shadow: 0 4px 15px rgba(212, 168, 67, 0.4);
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 168, 67, 0.5) !important;
+            background: var(--gradient-gold) !important;
+        }
+
+        .mobile-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px;
+            z-index: 1001;
+        }
+
+        .mobile-toggle span {
+            width: 28px;
+            height: 2.5px;
+            background: var(--white);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .mobile-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background: var(--gradient-primary);
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+        }
+
+        .hero-bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(212, 168, 67, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 60% 80%, rgba(37, 99, 235, 0.2) 0%, transparent 50%);
+        }
+
+        .hero-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .hero-floating {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .hero-floating:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            background: var(--accent);
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .hero-floating:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            background: var(--gold);
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -5s;
+        }
+
+        .hero-floating:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            background: var(--accent-light);
+            top: 50%;
+            left: 50%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 10px) scale(1.02); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 120px 24px 80px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-left {
+            animation: slideInLeft 1s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(212, 168, 67, 0.15);
+            border: 1px solid rgba(212, 168, 67, 0.3);
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-bottom: 24px;
+        }
+
+        .hero-badge i {
+            color: var(--gold);
+            font-size: 0.8rem;
+        }
+
+        .hero-badge span {
+            color: var(--gold);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--white);
+            line-height: 1.15;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 .highlight {
+            background: var(--gradient-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.15rem;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.8;
+            margin-bottom: 36px;
+            max-width: 520px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-gold);
+            color: var(--primary);
+            box-shadow: 0 4px 20px rgba(212, 168, 67, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(212, 168, 67, 0.5);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--white);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-3px);
+        }
+
+        .btn-secondary {
+            background: var(--gradient-accent);
+            color: var(--white);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(37, 99, 235, 0.5);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+        }
+
+        .hero-stat {
+            text-align: left;
+        }
+
+        .hero-stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--white);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .hero-stat-number .gold {
+            color: var(--gold);
+        }
+
+        .hero-stat-label {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .hero-right {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: slideInRight 1s ease-out 0.3s both;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .hero-visual {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .hero-card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-gold);
+        }
+
+        .hero-card-icon {
+            width: 120px;
+            height: 120px;
+            background: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .hero-card-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .hero-card-icon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-card h3 {
+            color: var(--white);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .hero-card p {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .hero-card-features {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .hero-card-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+        }
+
+        .hero-card-feature i {
+            color: var(--gold);
+            font-size: 0.8rem;
+        }
+
+        .floating-badge {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: var(--radius);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: floatBadge 4s ease-in-out infinite;
+        }
+
+        .floating-badge.top-right {
+            top: -20px;
+            right: -20px;
+            animation-delay: 0s;
+        }
+
+        .floating-badge.bottom-left {
+            bottom: -20px;
+            left: -20px;
+            animation-delay: -2s;
+        }
+
+        @keyframes floatBadge {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .floating-badge i {
+            color: var(--gold);
+            font-size: 1.1rem;
+        }
+
+        .floating-badge span {
+            color: var(--white);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* ===== SCROLL INDICATOR ===== */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-indicator span {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .scroll-mouse {
+            width: 24px;
+            height: 38px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .scroll-mouse::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 8px;
+            background: var(--gold);
+            border-radius: 3px;
+            animation: scrollWheel 2s infinite;
+        }
+
+        @keyframes scrollWheel {
+            0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(12px); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(8px); }
+        }
+
+        /* ===== SECTION STYLES ===== */
+        .section {
+            padding: 100px 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(37, 99, 235, 0.08);
+            color: var(--secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-bottom: 16px;
+        }
+
+        .section-label i {
+            font-size: 0.75rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+
+        .section-title .highlight {
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--gray-500);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* ===== ABOUT SECTION ===== */
+        .about {
+            background: var(--light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .about-image {
+            position: relative;
+        }
+
+        .about-img-wrapper {
+            position: relative;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .about-img-wrapper img {
+            width: 100%;
+            height: 450px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .about-img-placeholder {
+            width: 100%;
+            height: 450px;
+            background: var(--gradient-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-img-placeholder::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 20px,
+                rgba(255,255,255,0.02) 20px,
+                rgba(255,255,255,0.02) 40px
+            );
+        }
+
+        .about-img-placeholder i {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .about-img-placeholder span {
+            font-size: 1rem;
+            opacity: 0.5;
+            letter-spacing: 2px;
+        }
+
+        .about-experience-badge {
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            background: var(--gradient-gold);
+            color: var(--primary);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            z-index: 2;
+        }
+
+        .about-experience-badge .number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .about-experience-badge .text {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .about-content h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .about-content .lead {
+            font-size: 1.1rem;
+            color: var(--secondary);
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .about-content p {
+            color: var(--gray-600);
+            margin-bottom: 24px;
+            line-height: 1.8;
+        }
+
+        .about-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .about-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: var(--white);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .about-feature:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .about-feature i {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .about-feature span {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        /* ===== SERVICES SECTION ===== */
+        .services {
+            background: var(--white);
+            position: relative;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .service-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: 36px 28px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-accent);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .service-card:hover {
+            border-color: var(--accent-light);
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .service-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .service-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(37, 99, 235, 0.08);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover .service-icon {
+            background: var(--gradient-accent);
+        }
+
+        .service-icon i {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover .service-icon i {
+            color: var(--white);
+        }
+
+        .service-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 12px;
+        }
+
+        .service-card p {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .service-card .service-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover .service-link {
+            gap: 10px;
+        }
+
+        /* ===== RECENT PROJECTS SECTION ===== */
+        .recent-projects {
+            background: var(--light);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .project-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-light);
+        }
+
+        .project-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #10B981;
+            color: var(--white);
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .project-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(37, 99, 235, 0.08);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .project-icon i {
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+
+        .project-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 16px;
+        }
+
+        .project-location,
+        .project-date {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+        }
+
+        .project-location i,
+        .project-date i {
+            color: var(--secondary);
+            font-size: 0.85rem;
+        }
+
+        .trust-message {
+            background: var(--gradient-primary);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            text-align: center;
+            color: var(--white);
+        }
+
+        .trust-text {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .trust-quote {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .trust-quote i {
+            font-size: 2rem;
+            color: var(--gold);
+            margin-bottom: 16px;
+        }
+
+        .trust-quote p {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+
+        .quote-sub {
+            font-size: 0.95rem !important;
+            opacity: 0.8;
+            font-style: normal !important;
+            font-weight: 500 !important;
+        }
+
+        /* ===== INTERACTIVE MAP SECTION ===== */
+        .project-map {
+            background: var(--white);
+        }
+
+        .map-stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .map-stat-item {
+            text-align: center;
+        }
+
+        .map-stat-item .count {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--secondary);
+            line-height: 1;
+        }
+
+        .map-stat-item .label {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+        }
+
+        .map-wrapper {
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            border: 2px solid var(--gray-200);
+            position: relative;
+            z-index: 1;
+        }
+
+        #projects-map {
+            height: 550px;
+            width: 100%;
+            z-index: 1;
+            background: #e5e7eb;
+        }
+
+        .map-note {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--gray-400);
+            margin-top: 12px;
+        }
+
+        /* Leaflet popup custom styling */
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px !important;
+            box-shadow: var(--shadow-md) !important;
+        }
+        .leaflet-popup-content {
+            font-family: 'Poppins', sans-serif !important;
+            font-size: 0.9rem !important;
+            line-height: 1.5 !important;
+            margin: 12px !important;
+        }
+        .popup-title {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+            font-size: 1rem;
+        }
+        .popup-service {
+            color: var(--secondary);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .popup-date {
+            color: var(--gray-500);
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        /* ===== WHY CHOOSE US ===== */
+        .why-us {
+            background: var(--gradient-primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .why-us::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(212, 168, 67, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+        }
+
+        .why-us .section-label {
+            background: rgba(212, 168, 67, 0.15);
+            color: var(--gold);
+        }
+
+        .why-us .section-title {
+            color: var(--white);
+        }
+
+        .why-us .section-subtitle {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .why-card {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-lg);
+            padding: 36px 24px;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .why-card:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-8px);
+            border-color: rgba(212, 168, 67, 0.3);
+        }
+
+        .why-card-icon {
+            width: 72px;
+            height: 72px;
+            background: rgba(212, 168, 67, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .why-card-icon i {
+            font-size: 1.6rem;
+            color: var(--gold);
+        }
+
+        .why-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 10px;
+        }
+
+        .why-card p {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.7;
+        }
+
+        /* ===== PROCESS SECTION ===== */
+        .process {
+            background: var(--light);
+        }
+
+        .process-timeline {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            position: relative;
+        }
+
+        .process-timeline::before {
+            content: '';
+            position: absolute;
+            top: 45px;
+            left: 12.5%;
+            right: 12.5%;
+            height: 3px;
+            background: var(--gray-200);
+            z-index: 0;
+        }
+
+        .process-step {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .process-number {
+            width: 90px;
+            height: 90px;
+            background: var(--white);
+            border: 3px solid var(--gray-200);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            transition: all 0.3s ease;
+        }
+
+        .process-step:hover .process-number {
+            border-color: var(--secondary);
+            background: var(--gradient-accent);
+            transform: scale(1.1);
+        }
+
+        .process-number span {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--gray-400);
+            transition: all 0.3s ease;
+        }
+
+        .process-step:hover .process-number span {
+            color: var(--white);
+        }
+
+        .process-step h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .process-step p {
+            font-size: 0.85rem;
+            color: var(--gray-500);
+            line-height: 1.7;
+        }
+
+        /* ===== TESTIMONIALS ===== */
+        .testimonials {
+            background: var(--white);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .testimonial-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-light);
+        }
+
+        .testimonial-stars {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+
+        .testimonial-stars i {
+            color: var(--gold);
+            font-size: 0.9rem;
+        }
+
+        .testimonial-text {
+            font-size: 0.95rem;
+            color: var(--gray-600);
+            line-height: 1.8;
+            margin-bottom: 24px;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .testimonial-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .testimonial-info h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .testimonial-info span {
+            font-size: 0.8rem;
+            color: var(--gray-400);
+        }
+
+        /* ===== CONTACT SECTION ===== */
+        .contact {
+            background: var(--light);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 60px;
+            align-items: start;
+        }
+
+        .contact-info {
+            padding-right: 20px;
+        }
+
+        .contact-info h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--gray-900);
+            margin-bottom: 16px;
+        }
+
+        .contact-info > p {
+            color: var(--gray-500);
+            margin-bottom: 36px;
+            line-height: 1.8;
+        }
+
+        .contact-details {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 36px;
+        }
+
+        .contact-detail {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .contact-detail-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(37, 99, 235, 0.08);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .contact-detail-icon i {
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+
+        .contact-detail-text h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+        }
+
+        .contact-detail-text p,
+        .contact-detail-text a {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .contact-detail-text a:hover {
+            color: var(--secondary);
+        }
+
+        .contact-socials {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-link {
+            width: 44px;
+            height: 44px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-500);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: var(--gradient-accent);
+            color: var(--white);
+            border-color: transparent;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .contact-form-wrapper {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+        }
+
+        .contact-form-wrapper h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .contact-form-wrapper > p {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+            margin-bottom: 28px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            color: var(--gray-700);
+            transition: all 0.3s ease;
+            background: var(--light);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--gradient-accent);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        /* ===== MAP SECTION ===== */
+        .map-section {
+            background: var(--white);
+            padding: 0;
+        }
+
+        .map-container {
+            position: relative;
+            height: 400px;
+            background: var(--gray-100);
+            overflow: hidden;
+        }
+
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 29, 81, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: var(--white);
+            text-align: center;
+            padding: 24px;
+        }
+
+        .map-overlay i {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 16px;
+        }
+
+        .map-overlay h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .map-overlay p {
+            font-size: 1rem;
+            opacity: 0.7;
+            max-width: 400px;
+        }
+
+        /* ===== CTA SECTION ===== */
+        .cta {
+            background: var(--gradient-primary);
+            padding: 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(212, 168, 67, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .cta-content {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-content h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 16px;
+        }
+
+        .cta-content p {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 36px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--gray-900);
+            padding: 80px 0 0;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+            gap: 40px;
+            padding-bottom: 60px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .footer-brand .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .footer-logo-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--white);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+        }
+
+        .footer-logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .footer-logo-text {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--white);
+            letter-spacing: 2px;
+        }
+
+        .footer-brand p {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.9rem;
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        .footer-socials {
+            display: flex;
+            gap: 10px;
+        }
+
+        .footer-socials a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.06);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-socials a:hover {
+            background: var(--secondary);
+            color: var(--white);
+            transform: translateY(-3px);
+        }
+
+        .footer h4 {
+            color: var(--white);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            position: relative;
+            padding-bottom: 12px;
+        }
+
+        .footer h4::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 30px;
+            height: 3px;
+            background: var(--gold);
+            border-radius: 10px;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-links a {
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-links a:hover {
+            color: var(--gold);
+            padding-left: 6px;
+        }
+
+        .footer-contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .footer-contact-item i {
+            color: var(--gold);
+            margin-top: 4px;
+            font-size: 0.9rem;
+        }
+
+        .footer-contact-item p,
+        .footer-contact-item a {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-contact-item a:hover {
+            color: var(--gold);
+        }
+
+        .footer-bottom {
+            padding: 24px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-bottom p {
+            color: rgba(255,255,255,0.3);
+            font-size: 0.85rem;
+        }
+
+        .footer-bottom-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-bottom-links a {
+            color: rgba(255,255,255,0.3);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-bottom-links a:hover {
+            color: var(--gold);
+        }
+
+        /* ===== BACK TO TOP ===== */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-accent);
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 999;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(37, 99, 235, 0.5);
+        }
+
+        /* ===== WHATSAPP FLOAT ===== */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 56px;
+            height: 56px;
+            background: #25D366;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.6rem;
+            text-decoration: none;
+            z-index: 999;
+            box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(37, 211, 102, 0.5);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-description {
+                margin: 0 auto 36px;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-stats {
+                justify-content: center;
+            }
+
+            .hero-right {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .projects-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .why-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .process-timeline {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .process-timeline::before {
+                display: none;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .language-selector {
+                margin-left: 10px;
+            }
+
+            .language-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 80%;
+                max-width: 360px;
+                height: 100vh;
+                background: var(--primary);
+                flex-direction: column;
+                padding: 100px 40px 40px;
+                transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: -10px 0 40px rgba(0,0,0,0.3);
+                gap: 4px;
+                align-items: stretch;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links a {
+                padding: 14px 20px;
+                font-size: 1rem;
+                border-radius: var(--radius-sm);
+            }
+
+            .mobile-toggle {
+                display: flex;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 20px;
+                align-items: center;
+            }
+
+            .section {
+                padding: 70px 0;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .why-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .process-timeline {
+                grid-template-columns: 1fr;
+            }
+
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .cta-content h2 {
+                font-size: 1.8rem;
+            }
+
+            .about-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .map-stats-bar {
+                gap: 20px;
+            }
+
+            .language-selector {
+                display: none;
+            }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Counter animation */
+        .counter {
+            display: inline;
+        }
+
+        /* Mobile overlay */
+        .nav-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .nav-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-content">
+            <div class="preloader-logo">
+                <img src="gramm-logo.png" alt="GRAMM Logo">
+            </div>
+            <div class="preloader-bar"></div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <div class="nav-logo-icon">
+                    <img src="gramm-logo.png" alt="GRAMM Logo">
+                </div>
+                <div class="nav-logo-text">
+                    <span class="brand">GRAMM</span>
+                    <span class="sub">Geodetic Surveying</span>
+                </div>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home" class="active" data-translate="nav_home">Home</a></li>
+                <li><a href="#about" data-translate="nav_about">About</a></li>
+                <li><a href="#services" data-translate="nav_services">Services</a></li>
+                <li><a href="#projects" data-translate="nav_projects">Projects</a></li>
+                <li><a href="#coverage" data-translate="nav_coverage">Coverage</a></li>
+                <li><a href="#contact" class="nav-cta" data-translate="nav_quote">Get Quote</a></li>
+            </ul>
+            <div class="nav-right" style="display: flex; align-items: center;">
+                <!-- Language Selector -->
+                <div class="language-selector">
+                    <button class="language-btn" onclick="toggleLanguageDropdown()">
+                        <i class="fas fa-globe"></i>
+                        <span id="currentLang">EN</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                    </button>
+                    <div class="language-dropdown" id="languageDropdown">
+                        <div class="language-option active" onclick="changeLanguage('en')">
+                            <span class="language-flag">🇬🇧</span>
+                            <span>English</span>
+                        </div>
+                        <div class="language-option" onclick="changeLanguage('tl')">
+                            <span class="language-flag">🇵🇭</span>
+                            <span>Tagalog</span>
+                        </div>
+                        <div class="language-option" onclick="changeLanguage('ceb')">
+                            <span class="language-flag">🌐</span>
+                            <span>Cebuano</span>
+                        </div>
+                        <div class="language-option" onclick="changeLanguage('ilo')">
+                            <span class="language-flag">🌐</span>
+                            <span>Ilocano</span>
+                        </div>
+                        <div class="language-option" onclick="changeLanguage('kap')">
+                            <span class="language-flag">🌐</span>
+                            <span>Kapampangan</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mobile-toggle" id="mobileToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-bg">
+            <div class="hero-bg-pattern"></div>
+            <div class="hero-grid"></div>
+            <div class="hero-floating"></div>
+            <div class="hero-floating"></div>
+            <div class="hero-floating"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-left">
+                <div class="hero-badge">
+                    <i class="fas fa-shield-halved"></i>
+                    <span data-translate="hero_badge">Since 2026 • Licensed & Trusted</span>
+                </div>
+                <h1 data-translate="hero_title">Your Property's <span class="highlight">Perfect Partner</span> in Surveying</h1>
+                <p class="hero-description" data-translate="hero_desc">
+                    Securing your property with integrity. We provide expert geodetic surveying services in San Marcelino, Zambales — from land surveys to title processing, we've got you covered.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#contact" class="btn btn-primary" data-translate="hero_btn1">
+                        <i class="fas fa-paper-plane"></i> Get Free Consultation
+                    </a>
+                    <a href="#services" class="btn btn-outline" data-translate="hero_btn2">
+                        <i class="fas fa-arrow-right"></i> Our Services
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-number"><span class="counter" data-target="500">0</span><span class="gold">+</span></div>
+                        <div class="hero-stat-label" data-translate="stat_surveys">Surveys Completed</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-number"><span class="counter" data-target="300">0</span><span class="gold">+</span></div>
+                        <div class="hero-stat-label" data-translate="stat_clients">Happy Clients</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-number"><span class="counter" data-target="100">0</span><span class="gold">%</span></div>
+                        <div class="hero-stat-label" data-translate="stat_satisfaction">Satisfaction Rate</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-right">
+                <div class="hero-visual">
+                    <div class="hero-card">
+                        <div class="hero-card-icon">
+                            <img src="gramm-logo.png" alt="GRAMM Logo">
+                        </div>
+                        <h3 data-translate="card_title">Expert Geodetic Surveying</h3>
+                        <p data-translate="card_desc">Precision surveys for your property needs in Zambales and surrounding areas.</p>
+                        <div class="hero-card-features">
+                            <div class="hero-card-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span data-translate="card_feat1">Land & Subdivision Surveys</span>
+                            </div>
+                            <div class="hero-card-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span data-translate="card_feat2">Land Titling & Approval</span>
+                            </div>
+                            <div class="hero-card-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span data-translate="card_feat3">Transfer of Title</span>
+                            </div>
+                            <div class="hero-card-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span data-translate="card_feat4">Title & Lot Plan Research</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="floating-badge top-right">
+                        <i class="fas fa-star"></i>
+                        <span data-translate="badge1">Trusted Partner</span>
+                    </div>
+                    <div class="floating-badge bottom-left">
+                        <i class="fas fa-certificate"></i>
+                        <span data-translate="badge2">Licensed Surveyors</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="scroll-mouse"></div>
+            <span data-translate="scroll">Scroll Down</span>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about section" id="about">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-image" data-aos="fade-right">
+                    <div class="about-img-wrapper">
+                        <div class="about-img-placeholder">
+                            <i class="fas fa-landmark"></i>
+                            <span>GRAMM SURVEYING</span>
+                        </div>
+                    </div>
+                    <div class="about-experience-badge">
+                        <div class="number">2026</div>
+                        <div class="text" data-translate="established">Established</div>
+                    </div>
+                </div>
+                <div class="about-content" data-aos="fade-left">
+                    <div class="section-label"><i class="fas fa-info-circle"></i> <span data-translate="about_label">About Us</span></div>
+                    <h2 data-translate="about_title">Securing Your Property With <span style="color: var(--secondary);">Integrity</span></h2>
+                    <p class="lead" data-translate="about_lead">Your trusted geodetic surveying partner in Zambales.</p>
+                    <p data-translate="about_p1">
+                        Gramm Geodetic Surveying Development Inc. is a professional surveying firm based in San Marcelino, Zambales. We specialize in providing accurate, reliable, and timely geodetic surveying services to homeowners, developers, and businesses throughout the region.
+                    </p>
+                    <p data-translate="about_p2">
+                        Our commitment to excellence and integrity ensures that every property transaction and survey is handled with the utmost care and precision. From relocation surveys to land titling, we are your one-stop solution for all your surveying needs.
+                    </p>
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span data-translate="feat1">Licensed Surveyors</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span data-translate="feat2">Accurate Results</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span data-translate="feat3">Fast Turnaround</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span data-translate="feat4">Competitive Pricing</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span data-translate="feat5">Client-Focused</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span data-translate="feat6">Full Documentation</span>
+                        </div>
+                    </div>
+                    <a href="#contact" class="btn btn-secondary" data-translate="about_btn">
+                        <i class="fas fa-arrow-right"></i> Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services section" id="services">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <div class="section-label"><i class="fas fa-cogs"></i> <span data-translate="services_label">Our Services</span></div>
+                <h2 class="section-title" data-translate="services_title">Professional <span class="highlight">Surveying Services</span></h2>
+                <p class="section-subtitle" data-translate="services_subtitle">We offer a comprehensive range of geodetic surveying and land-related services to meet all your property needs.</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card" data-aos="fade-up" data-aos-delay="0">
+                    <div class="service-icon">
+                        <i class="fas fa-arrows-rotate"></i>
+                    </div>
+                    <h3 data-translate="svc1_title">Relocation Survey</h3>
+                    <p data-translate="svc1_desc">Accurate re-establishment of property boundaries based on existing survey plans and legal documents.</p>
+                    <a href="#contact" class="service-link" data-translate="svc_request">Request Service <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="service-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="service-icon">
+                        <i class="fas fa-border-all"></i>
+                    </div>
+                    <h3 data-translate="svc2_title">Subdivision Survey</h3>
+                    <p data-translate="svc2_desc">Professional division of land parcels into smaller lots with precise measurements and legal compliance.</p>
+                    <a href="#contact" class="service-link" data-translate="svc_request">Request Service <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="service-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="service-icon">
+                        <i class="fas fa-scissors"></i>
+                    </div>
+                    <h3 data-translate="svc3_title">Segregation Survey</h3>
+                    <p data-translate="svc3_desc">Separation of portions from a larger parcel of land with detailed documentation and mapping.</p>
+                    <a href="#contact" class="service-link" data-translate="svc_request">Request Service <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="service-card" data-aos="fade-up" data-aos-delay="0">
+                    <div class="service-icon">
+                        <i class="fas fa-object-group"></i>
+                    </div>
+                    <h3 data-translate="svc4_title">Consolidation Survey</h3>
+                    <p data-translate="svc4_desc">Combining adjacent lots into a single property parcel with updated survey documentation.</p>
+                    <a href="#contact" class="service-link" data-translate="svc_request">Request Service <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="service-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="service-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h3 data-translate="svc5_title">Consolidation-Subdivision Survey</h3>
+                    <p data-translate="svc5_desc">Combined consolidation and subdivision of multiple lots for development and reorganization purposes.</p>
+                    <a href="#contact" class="service-link" data-translate="svc_request">Request Service <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="service-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="service-icon">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <h3 data-translate="svc6_title">Lot Plan Approval</h3>
+                    <p data-translate="svc6_desc">Professional preparation and processing of lot plans for government approval and compliance.</p>
+                    <a href="#contact" class="service-link" data-translate="svc_request">Request Service <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="service-card" data-aos="fade-up" data-aos-delay="0">
+                    <div class="service-icon">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <h3 data-translate="svc7_title">Land Titling</h3>
+                    <p data-translate="svc7_desc">Complete assistance in securing and processing land titles from the Registry of Deeds.</p>
+                    <a href="#contact" class="service-link" data-translate="svc_request">Request Service <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="service-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="service-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <h3 data-translate="svc8_title">Transfer of Title</h3>
+                    <p data-translate="svc8_desc">Seamless transfer of property ownership with proper documentation and legal processing.</p>
+                    <a href="#contact" class="service-link" data-translate="svc_request">Request Service <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="service-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="service-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 data-translate="svc9_title">Land Title & Lot Plan Research</h3>
+                    <p data-translate="svc9_desc">Thorough research and verification of land titles, lot plans, and property records.</p>
+                    <a href="#contact" class="service-link" data-translate="svc_request">Request Service <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Projects Section -->
+    <section class="recent-projects section" id="projects">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <div class="section-label"><i class="fas fa-map-marked-alt"></i> <span data-translate="projects_label">Recent Projects</span></div>
+                <h2 class="section-title" data-translate="projects_title">Latest <span class="highlight">Survey Updates</span></h2>
+                <p class="section-subtitle" data-translate="projects_subtitle">Recent surveying projects completed across Zambales</p>
+            </div>
+            
+            <div class="projects-grid">
+                <div class="project-card" data-aos="fade-up" data-aos-delay="0">
+                    <div class="project-badge" data-translate="completed">✅ Completed</div>
+                    <div class="project-icon">
+                        <i class="fas fa-arrows-rotate"></i>
+                    </div>
+                    <h3 data-translate="svc1_title">Relocation Survey</h3>
+                    <div class="project-location">
+                        <i class="fas fa-location-dot"></i>
+                        <span>Luna, San Antonio, Zambales</span>
+                    </div>
+                    <div class="project-date">
+                        <i class="fas fa-calendar"></i>
+                        <span>May 09, 2026</span>
+                    </div>
+                </div>
+                
+                <div class="project-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="project-badge" data-translate="completed">✅ Completed</div>
+                    <div class="project-icon">
+                        <i class="fas fa-border-all"></i>
+                    </div>
+                    <h3 data-translate="svc2_title">Subdivision Survey</h3>
+                    <div class="project-location">
+                        <i class="fas fa-location-dot"></i>
+                        <span>Pinagrealan, Candelaria, Zambales</span>
+                    </div>
+                    <div class="project-date">
+                        <i class="fas fa-calendar"></i>
+                        <span>May 08, 2026</span>
+                    </div>
+                </div>
+                
+                <div class="project-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="project-badge" data-translate="completed">✅ Completed</div>
+                    <div class="project-icon">
+                        <i class="fas fa-arrows-rotate"></i>
+                    </div>
+                    <h3 data-translate="svc1_title">Relocation Survey</h3>
+                    <div class="project-location">
+                        <i class="fas fa-location-dot"></i>
+                        <span>Balaybay, Castillejos, Zambales</span>
+                    </div>
+                    <div class="project-date">
+                        <i class="fas fa-calendar"></i>
+                        <span>May 07, 2026</span>
+                    </div>
+                </div>
+                
+                <div class="project-card" data-aos="fade-up" data-aos-delay="0">
+                    <div class="project-badge" data-translate="completed">✅ Completed</div>
+                    <div class="project-icon">
+                        <i class="fas fa-arrows-rotate"></i>
+                    </div>
+                    <h3 data-translate="svc1_title">Relocation Survey</h3>
+                    <div class="project-location">
+                        <i class="fas fa-location-dot"></i>
+                        <span>Inhibol, Masinloc, Zambales</span>
+                    </div>
+                    <div class="project-date">
+                        <i class="fas fa-calendar"></i>
+                        <span>May 05, 2026</span>
+                    </div>
+                </div>
+                
+                <div class="project-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="project-badge" data-translate="completed">✅ Completed</div>
+                    <div class="project-icon">
+                        <i class="fas fa-arrows-rotate"></i>
+                    </div>
+                    <h3 data-translate="svc1_title">Relocation Survey</h3>
+                    <div class="project-location">
+                        <i class="fas fa-location-dot"></i>
+                        <span>Nagbayan, Castillejos, Zambales</span>
+                    </div>
+                    <div class="project-date">
+                        <i class="fas fa-calendar"></i>
+                        <span>May 01, 2026</span>
+                    </div>
+                </div>
+                
+                <div class="project-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="project-badge" data-translate="completed">✅ Completed</div>
+                    <div class="project-icon">
+                        <i class="fas fa-arrows-rotate"></i>
+                    </div>
+                    <h3 data-translate="svc1_title">Relocation Survey</h3>
+                    <div class="project-location">
+                        <i class="fas fa-location-dot"></i>
+                        <span>Inhibol, Masinloc, Zambales</span>
+                    </div>
+                    <div class="project-date">
+                        <i class="fas fa-calendar"></i>
+                        <span>May 01, 2026</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="trust-message" data-aos="fade-up">
+                <div class="trust-content">
+                    <p class="trust-text" data-translate="trust_text">We sincerely appreciate the trust you placed in our team. 🙏</p>
+                    <div class="trust-quote">
+                        <i class="fas fa-quote-left"></i>
+                        <p data-translate="trust_quote">"The Right Map Starts with the Right Team."</p>
+                        <p class="quote-sub" data-translate="trust_sub">Always hire a Licensed Geodetic Engineer.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Project Map Section -->
+    <section class="project-map section" id="coverage">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <div class="section-label"><i class="fas fa-map"></i> <span data-translate="coverage_label">Coverage Map</span></div>
+                <h2 class="section-title" data-translate="coverage_title">Where We've <span class="highlight">Worked</span></h2>
+                <p class="section-subtitle" data-translate="coverage_subtitle">Explore our completed projects across Zambales. Hover or click on pins to see details.</p>
+            </div>
+            
+            <div class="map-stats-bar" data-aos="fade-up">
+                <div class="map-stat-item">
+                    <div class="count">50+</div>
+                    <div class="label" data-translate="projects_completed">Projects Completed</div>
+                </div>
+                <div class="map-stat-item">
+                    <div class="count">8</div>
+                    <div class="label" data-translate="municipalities">Municipalities Covered</div>
+                </div>
+                <div class="map-stat-item">
+                    <div class="count">100%</div>
+                    <div class="label" data-translate="client_satisfaction">Client Satisfaction</div>
+                </div>
+            </div>
+
+            <div class="map-wrapper" data-aos="fade-up">
+                <div id="projects-map"></div>
+            </div>
+            <p class="map-note" data-translate="map_note">* Locations are approximate for client privacy. Actual survey sites may vary.</p>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="why-us section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <div class="section-label"><i class="fas fa-trophy"></i> <span data-translate="why_label">Why Choose Us</span></div>
+                <h2 class="section-title" data-translate="why_title">What Sets Us <span style="color: var(--gold);">Apart</span></h2>
+                <p class="section-subtitle" data-translate="why_subtitle">We combine expertise, technology, and dedication to deliver exceptional surveying services.</p>
+            </div>
+            <div class="why-grid">
+                <div class="why-card" data-aos="fade-up" data-aos-delay="0">
+                    <div class="why-card-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3 data-translate="why1_title">Precision & Accuracy</h3>
+                    <p data-translate="why1_desc">We use state-of-the-art equipment and methods to ensure the highest accuracy in every survey.</p>
+                </div>
+                <div class="why-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="why-card-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 data-translate="why2_title">Timely Delivery</h3>
+                    <p data-translate="why2_desc">We understand the importance of deadlines and always deliver our services on schedule.</p>
+                </div>
+                <div class="why-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="why-card-icon">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h3 data-translate="why3_title">Integrity & Trust</h3>
+                    <p data-translate="why3_desc">Honest and transparent dealings are the foundation of our client relationships.</p>
+                </div>
+                <div class="why-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="why-card-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3 data-translate="why4_title">Fair Pricing</h3>
+                    <p data-translate="why4_desc">Competitive and transparent pricing with no hidden fees or surprise charges.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="process section" id="process">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <div class="section-label"><i class="fas fa-route"></i> <span data-translate="process_label">Our Process</span></div>
+                <h2 class="section-title" data-translate="process_title">How We <span class="highlight">Work</span></h2>
+                <p class="section-subtitle" data-translate="process_subtitle">A streamlined process to ensure your project is completed efficiently and accurately.</p>
+            </div>
+            <div class="process-timeline">
+                <div class="process-step" data-aos="fade-up" data-aos-delay="0">
+                    <div class="process-number"><span>01</span></div>
+                    <h3 data-translate="step1">Consultation</h3>
+                    <p data-translate="step1_desc">Discuss your surveying needs, property details, and requirements with our expert team.</p>
+                </div>
+                <div class="process-step" data-aos="fade-up" data-aos-delay="150">
+                    <div class="process-number"><span>02</span></div>
+                    <h3 data-translate="step2">Field Survey</h3>
+                    <p data-translate="step2_desc">Our licensed surveyors conduct precise measurements and data collection on-site.</p>
+                </div>
+                <div class="process-step" data-aos="fade-up" data-aos-delay="300">
+                    <div class="process-number"><span>03</span></div>
+                    <h3 data-translate="step3">Processing</h3>
+                    <p data-translate="step3_desc">Data is analyzed, plans are drafted, and documents are prepared with meticulous care.</p>
+                </div>
+                <div class="process-step" data-aos="fade-up" data-aos-delay="450">
+                    <div class="process-number"><span>04</span></div>
+                    <h3 data-translate="step4">Delivery</h3>
+                    <p data-translate="step4_desc">Receive your complete survey documents and reports, ready for submission and use.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials section" id="testimonials">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <div class="section-label"><i class="fas fa-comments"></i> <span data-translate="testimonials_label">Testimonials</span></div>
+                <h2 class="section-title" data-translate="testimonials_title">What Our <span class="highlight">Clients Say</span></h2>
+                <p class="section-subtitle" data-translate="testimonials_subtitle">Hear from our satisfied clients who trust us with their property surveying needs.</p>
+            </div>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="0">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"[Add your client's testimonial here]"</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">CL</div>
+                        <div class="testimonial-info">
+                            <h4>[Client Name]</h4>
+                            <span>[e.g., Homeowner]</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"[Add another client testimonial here]"</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">CL</div>
+                        <div class="testimonial-info">
+                            <h4>[Client Name]</h4>
+                            <span>[e.g., Business Owner]</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"[Add a third client testimonial here]"</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">CL</div>
+                        <div class="testimonial-info">
+                            <h4>[Client Name]</h4>
+                            <span>[e.g., Real Estate Agent]</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content" data-aos="fade-up">
+                <h2 data-translate="cta_title">Ready to Secure Your Property?</h2>
+                <p data-translate="cta_desc">Get in touch with us today for a free consultation. Let Gramm be your property's perfect partner.</p>
+                <div class="cta-buttons">
+                    <a href="#contact" class="btn btn-primary" data-translate="contact_now">
+                        <i class="fas fa-paper-plane"></i> Contact Us Now
+                    </a>
+                    <a href="tel:+639566333644" class="btn btn-outline">
+                        <i class="fas fa-phone"></i> <span data-translate="call_now">Call</span> +63 956 633 3644
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact section" id="contact">
+        <div class="container">
+            <div class="contact-grid">
+                <div class="contact-info" data-aos="fade-right">
+                    <div class="section-label"><i class="fas fa-envelope"></i> <span data-translate="contact_label">Contact Us</span></div>
+                    <h2 data-translate="contact_title">Let's Discuss Your <span style="color: var(--secondary);">Project</span></h2>
+                    <p data-translate="contact_desc">Have questions or need a quote? Reach out to us and our team will get back to you as soon as possible.</p>
+                    <div class="contact-details">
+                        <div class="contact-detail">
+                            <div class="contact-detail-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-detail-text">
+                                <h4 data-translate="phone">Phone</h4>
+                                <a href="tel:+639566333644">+63 956 633 3644</a><br>
+                                <a href="tel:+639955074155">+63 995 507 4155</a>
+                            </div>
+                        </div>
+                        <div class="contact-detail">
+                            <div class="contact-detail-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-detail-text">
+                                <h4 data-translate="email">Email</h4>
+                                <a href="mailto:grammsurveying072325@gmail.com">grammsurveying072325@gmail.com</a>
+                            </div>
+                        </div>
+                        <div class="contact-detail">
+                            <div class="contact-detail-icon">
+                                <i class="fas fa-location-dot"></i>
+                            </div>
+                            <div class="contact-detail-text">
+                                <h4 data-translate="address">Office Address</h4>
+                                <p>2nd Floor SJSP Bldg., National Highway,<br>Nagbunga, San Marcelino, Zambales, Philippines</p>
+                            </div>
+                        </div>
+                        <div class="contact-detail">
+                            <div class="contact-detail-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="contact-detail-text">
+                                <h4 data-translate="hours">Business Hours</h4>
+                                <p data-translate="business_hours">Monday - Saturday: 8:00 AM - 5:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="contact-socials">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="https://wa.me/639566333644" class="social-link"><i class="fab fa-whatsapp"></i></a>
+                        <a href="mailto:grammsurveying072325@gmail.com" class="social-link"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+                <div class="contact-form-wrapper" data-aos="fade-left">
+                    <h3 data-translate="form_title">Send Us a Message</h3>
+                    <p data-translate="form_desc">Fill out the form below and we'll respond within 24 hours.</p>
+                    <form id="contactForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName" data-translate="first_name">First Name *</label>
+                                <input type="text" id="firstName" name="firstName" placeholder="Juan" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName" data-translate="last_name">Last Name *</label>
+                                <input type="text" id="lastName" name="lastName" placeholder="Dela Cruz" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email" data-translate="email_addr">Email Address *</label>
+                                <input type="email" id="email" name="email" placeholder="juan@email.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone" data-translate="phone_num">Phone Number *</label>
+                                <input type="tel" id="phone" name="phone" placeholder="+63 9XX XXX XXXX" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="service" data-translate="service_needed">Service Needed *</label>
+                            <select id="service" name="service" required>
+                                <option value="" disabled selected>Select a service</option>
+                                <option value="relocation">Relocation Survey</option>
+                                <option value="subdivision">Subdivision Survey</option>
+                                <option value="segregation">Segregation Survey</option>
+                                <option value="consolidation">Consolidation Survey</option>
+                                <option value="consolidation-subdivision">Consolidation-Subdivision Survey</option>
+                                <option value="lot-plan">Lot Plan Approval</option>
+                                <option value="land-titling">Land Titling</option>
+                                <option value="transfer">Transfer of Title</option>
+                                <option value="research">Land Title & Lot Plan Research</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="location" data-translate="property_location">Property Location</label>
+                            <input type="text" id="location" name="location" placeholder="Barangay, Municipality, Province">
+                        </div>
+                        <div class="form-group">
+                            <label for="message" data-translate="message">Message *</label>
+                            <textarea id="message" name="message" placeholder="Tell us about your project or inquiry..." required></textarea>
+                        </div>
+                        <button type="submit" class="form-submit" data-translate="send_message">
+                            <i class="fas fa-paper-plane"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-section">
+        <div class="map-container">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3854.611318322447!2d120.16721297488003!3d14.958732685571183!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33967988eb7ed043%3A0x18281d5c0b48de67!2sSJSP%20COMMERCIAL%20BUILDING!5e0!3m2!1sen!2sin!4v1779195051910!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen="" loading="lazy"></iframe>
+            <div class="map-overlay">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>Visit Our Office</h3>
+                <p>2nd Floor SJSP Bldg., National Highway, Nagbunga, San Marcelino, Zambales</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <div class="footer-logo-icon">
+                            <img src="gramm-logo.png" alt="GRAMM Logo">
+                        </div>
+                        <span class="footer-logo-text">GRAMM</span>
+                    </div>
+                    <p data-translate="footer_desc">Gramm Geodetic Surveying Development Inc. — Your property's perfect partner. Securing your property with integrity since 2026.</p>
+                    <div class="footer-socials">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="https://wa.me/639566333644"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 data-translate="quick_links">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#home"><i class="fas fa-chevron-right"></i> <span data-translate="nav_home">Home</span></a></li>
+                        <li><a href="#about"><i class="fas fa-chevron-right"></i> <span data-translate="nav_about">About Us</span></a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> <span data-translate="nav_services">Services</span></a></li>
+                        <li><a href="#projects"><i class="fas fa-chevron-right"></i> <span data-translate="nav_projects">Recent Projects</span></a></li>
+                        <li><a href="#coverage"><i class="fas fa-chevron-right"></i> <span data-translate="nav_coverage">Coverage Map</span></a></li>
+                        <li><a href="#contact"><i class="fas fa-chevron-right"></i> <span data-translate="nav_contact">Contact</span></a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 data-translate="our_services">Our Services</h4>
+                    <ul class="footer-links">
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> <span data-translate="svc1_title">Relocation Survey</span></a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> <span data-translate="svc2_title">Subdivision Survey</span></a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> <span data-translate="svc3_title">Segregation Survey</span></a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> <span data-translate="svc4_title">Consolidation Survey</span></a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> <span data-translate="svc7_title">Land Titling</span></a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-right"></i> <span data-translate="svc8_title">Transfer of Title</span></a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 data-translate="contact_info">Contact Info</h4>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-location-dot"></i>
+                        <p>2nd Floor SJSP Bldg., National Highway, Nagbunga, San Marcelino, Zambales</p>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <a href="tel:+639566333644">+63 956 633 3644</a><br>
+                            <a href="tel:+639955074155">+63 995 507 4155</a>
+                        </div>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:grammsurveying072325@gmail.com">grammsurveying072325@gmail.com</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p data-translate="copyright">&copy; 2026 Gramm Geodetic Surveying Development Inc. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="#" data-translate="privacy">Privacy Policy</a>
+                    <a href="#" data-translate="terms">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- WhatsApp Float -->
+    <a href="https://wa.me/639566333644?text=Hello%2C%20I%20would%20like%20to%20inquire%20about%20your%20surveying%20services." class="whatsapp-float" target="_blank" title="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- AOS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    
+    <!-- LEAFLET JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script>
+        // ===== TRANSLATIONS =====
+        const translations = {
+            en: {
+                nav_home: "Home",
+                nav_about: "About",
+                nav_services: "Services",
+                nav_projects: "Projects",
+                nav_coverage: "Coverage",
+                nav_quote: "Get Quote",
+                hero_badge: "Since 2026 • Licensed & Trusted",
+                hero_title: "Your Property's <span class='highlight'>Perfect Partner</span> in Surveying",
+                hero_desc: "Securing your property with integrity. We provide expert geodetic surveying services in San Marcelino, Zambales — from land surveys to title processing, we've got you covered.",
+                hero_btn1: "Get Free Consultation",
+                hero_btn2: "Our Services",
+                stat_surveys: "Surveys Completed",
+                stat_clients: "Happy Clients",
+                stat_satisfaction: "Satisfaction Rate",
+                card_title: "Expert Geodetic Surveying",
+                card_desc: "Precision surveys for your property needs in Zambales and surrounding areas.",
+                card_feat1: "Land & Subdivision Surveys",
+                card_feat2: "Land Titling & Approval",
+                card_feat3: "Transfer of Title",
+                card_feat4: "Title & Lot Plan Research",
+                badge1: "Trusted Partner",
+                badge2: "Licensed Surveyors",
+                scroll: "Scroll Down",
+                established: "Established",
+                about_label: "About Us",
+                about_title: "Securing Your Property With <span style='color: var(--secondary);'>Integrity</span>",
+                about_lead: "Your trusted geodetic surveying partner in Zambales.",
+                about_p1: "Gramm Geodetic Surveying Development Inc. is a professional surveying firm based in San Marcelino, Zambales. We specialize in providing accurate, reliable, and timely geodetic surveying services to homeowners, developers, and businesses throughout the region.",
+                about_p2: "Our commitment to excellence and integrity ensures that every property transaction and survey is handled with the utmost care and precision. From relocation surveys to land titling, we are your one-stop solution for all your surveying needs.",
+                feat1: "Licensed Surveyors",
+                feat2: "Accurate Results",
+                feat3: "Fast Turnaround",
+                feat4: "Competitive Pricing",
+                feat5: "Client-Focused",
+                feat6: "Full Documentation",
+                about_btn: "Learn More",
+                services_label: "Our Services",
+                services_title: "Professional <span class='highlight'>Surveying Services</span>",
+                services_subtitle: "We offer a comprehensive range of geodetic surveying and land-related services to meet all your property needs.",
+                svc1_title: "Relocation Survey",
+                svc1_desc: "Accurate re-establishment of property boundaries based on existing survey plans and legal documents.",
+                svc2_title: "Subdivision Survey",
+                svc2_desc: "Professional division of land parcels into smaller lots with precise measurements and legal compliance.",
+                svc3_title: "Segregation Survey",
+                svc3_desc: "Separation of portions from a larger parcel of land with detailed documentation and mapping.",
+                svc4_title: "Consolidation Survey",
+                svc4_desc: "Combining adjacent lots into a single property parcel with updated survey documentation.",
+                svc5_title: "Consolidation-Subdivision Survey",
+                svc5_desc: "Combined consolidation and subdivision of multiple lots for development and reorganization purposes.",
+                svc6_title: "Lot Plan Approval",
+                svc6_desc: "Professional preparation and processing of lot plans for government approval and compliance.",
+                svc7_title: "Land Titling",
+                svc7_desc: "Complete assistance in securing and processing land titles from the Registry of Deeds.",
+                svc8_title: "Transfer of Title",
+                svc8_desc: "Seamless transfer of property ownership with proper documentation and legal processing.",
+                svc9_title: "Land Title & Lot Plan Research",
+                svc9_desc: "Thorough research and verification of land titles, lot plans, and property records.",
+                svc_request: "Request Service",
+                projects_label: "Recent Projects",
+                projects_title: "Latest Survey Updates",
+                projects_subtitle: "Recent surveying projects completed across Zambales",
+                completed: "✅ Completed",
+                trust_text: "We sincerely appreciate the trust you placed in our team. 🙏",
+                trust_quote: "The Right Map Starts with the Right Team.",
+                trust_sub: "Always hire a Licensed Geodetic Engineer.",
+                coverage_label: "Coverage Map",
+                coverage_title: "Where We've Worked",
+                coverage_subtitle: "Explore our completed projects across Zambales. Hover or click on pins to see details.",
+                projects_completed: "Projects Completed",
+                municipalities: "Municipalities Covered",
+                client_satisfaction: "Client Satisfaction",
+                map_note: "Locations are approximate for client privacy. Actual survey sites may vary.",
+                why_label: "Why Choose Us",
+                why_title: "What Sets Us Apart",
+                why_subtitle: "We combine expertise, technology, and dedication to deliver exceptional surveying services.",
+                why1_title: "Precision & Accuracy",
+                why1_desc: "We use state-of-the-art equipment and methods to ensure the highest accuracy in every survey.",
+                why2_title: "Timely Delivery",
+                why2_desc: "We understand the importance of deadlines and always deliver our services on schedule.",
+                why3_title: "Integrity & Trust",
+                why3_desc: "Honest and transparent dealings are the foundation of our client relationships.",
+                why4_title: "Fair Pricing",
+                why4_desc: "Competitive and transparent pricing with no hidden fees or surprise charges.",
+                process_label: "Our Process",
+                process_title: "How We Work",
+                process_subtitle: "A streamlined process to ensure your project is completed efficiently and accurately.",
+                step1: "Consultation",
+                step1_desc: "Discuss your surveying needs, property details, and requirements with our expert team.",
+                step2: "Field Survey",
+                step2_desc: "Our licensed surveyors conduct precise measurements and data collection on-site.",
+                step3: "Processing",
+                step3_desc: "Data is analyzed, plans are drafted, and documents are prepared with meticulous care.",
+                step4: "Delivery",
+                step4_desc: "Receive your complete survey documents and reports, ready for submission and use.",
+                testimonials_label: "Testimonials",
+                testimonials_title: "What Our Clients Say",
+                testimonials_subtitle: "Hear from our satisfied clients who trust us with their property surveying needs.",
+                cta_title: "Ready to Secure Your Property?",
+                cta_desc: "Get in touch with us today for a free consultation. Let Gramm be your property's perfect partner.",
+                contact_now: "Contact Us Now",
+                call_now: "Call",
+                contact_label: "Contact Us",
+                contact_title: "Let's Discuss Your Project",
+                contact_desc: "Have questions or need a quote? Reach out to us and our team will get back to you as soon as possible.",
+                phone: "Phone",
+                email: "Email",
+                address: "Office Address",
+                hours: "Business Hours",
+                business_hours: "Monday - Saturday: 8:00 AM - 5:00 PM",
+                form_title: "Send Us a Message",
+                form_desc: "Fill out the form below and we'll respond within 24 hours.",
+                first_name: "First Name",
+                last_name: "Last Name",
+                email_addr: "Email Address",
+                phone_num: "Phone Number",
+                service_needed: "Service Needed",
+                property_location: "Property Location",
+                message: "Message",
+                send_message: "Send Message",
+                footer_desc: "Gramm Geodetic Surveying Development Inc. — Your property's perfect partner. Securing your property with integrity since 2026.",
+                quick_links: "Quick Links",
+                our_services: "Our Services",
+                contact_info: "Contact Info",
+                copyright: "© 2026 Gramm Geodetic Surveying Development Inc. All rights reserved.",
+                privacy: "Privacy Policy",
+                terms: "Terms of Service"
+            },
+            tl: {
+                nav_home: "Home",
+                nav_about: "Tungkol",
+                nav_services: "Serbisyo",
+                nav_projects: "Mga Proyekto",
+                nav_coverage: "Sakop",
+                nav_quote: "Kumuha ng Quote",
+                hero_badge: "Simula 2026 • Lisensyado at Pinagkakatiwalaan",
+                hero_title: "Ang <span class='highlight'>Perpektong Kasosyo</span> mo sa Surveying",
+                hero_desc: "Pinoprotektahan ang iyong lupain nang may integridad. Nagbibigay kami ng propesyonal na geodetic surveying services sa San Marcelino, Zambales — mula sa land surveys hanggang title processing, aalagaan ka namin.",
+                hero_btn1: "Libreng Konsultasyon",
+                hero_btn2: "Aming mga Serbisyo",
+                stat_surveys: "Natapos na Survey",
+                stat_clients: "Masasayang Kliyente",
+                stat_satisfaction: "Antas ng Kasiyahan",
+                card_title: "Propesyonal na Geodetic Surveying",
+                card_desc: "Tumpak na survey para sa iyong pangangailangan sa Zambales at mga karatig lugar.",
+                card_feat1: "Land & Subdivision Surveys",
+                card_feat2: "Land Titling & Approval",
+                card_feat3: "Transfer of Title",
+                card_feat4: "Title & Lot Plan Research",
+                badge1: "Pinagkakatiwalaang Kasosyo",
+                badge2: "Lisensyadong Surveyors",
+                scroll: "I-scroll Pababa",
+                established: "Itinatag",
+                about_label: "Tungkol sa Amin",
+                about_title: "Pinoprotektahan ang Iyong Lupaing may <span style='color: var(--secondary);'>Integridad</span>",
+                about_lead: "Ang iyong pinagkakatiwalaang geodetic surveying partner sa Zambales.",
+                about_p1: "Ang Gramm Geodetic Surveying Development Inc. ay isang propesyonal na surveying firm na nakabase sa San Marcelino, Zambales. Dalubhasa kami sa pagbibigay ng tumpak, maaasahan, at maagap na geodetic surveying services sa mga homeowners, developers, at negosyo sa buong rehiyon.",
+                about_p2: "Ang aming pangako sa kahusayan at integridad ay nagsisiguro na bawat transaksyon at survey ay pinangangasiwaan nang may pinakamataas na pag-aalaga at katumpakan. Mula sa relocation surveys hanggang land titling, kami ang iyong one-stop solution para sa lahat ng iyong surveying needs.",
+                feat1: "Lisensyadong Surveyors",
+                feat2: "Tumpak na Resulta",
+                feat3: "Mabilis na Serbisyo",
+                feat4: "Abot-kayang Presyo",
+                feat5: "Nakatuon sa Kliyente",
+                feat6: "Kumpletong Dokumento",
+                about_btn: "Matuto Pa",
+                services_label: "Aming mga Serbisyo",
+                services_title: "Propesyonal na <span class='highlight'>Serbisyo sa Surveying</span>",
+                services_subtitle: "Nag-aalok kami ng kumpletong saklaw ng geodetic surveying at land-related services para sa lahat ng iyong pangangailangan sa lupa.",
+                svc1_title: "Relocation Survey",
+                svc1_desc: "Tumpak na pagtukoy muli ng hangganan ng lupa base sa umiiral na survey plans at legal na dokumento.",
+                svc2_title: "Subdivision Survey",
+                svc2_desc: "Propesyonal na paghahati ng mga lote sa mas maliit na bahagi na may tumpak na sukat at pagsunod sa batas.",
+                svc3_title: "Segregation Survey",
+                svc3_desc: "Paghihiwalay ng mga bahagi mula sa mas malaking lote na may detalyadong dokumentasyon at mapping.",
+                svc4_title: "Consolidation Survey",
+                svc4_desc: "Pagsasama-sama ng magkatabing mga lote sa isang property na may updated na survey documentation.",
+                svc5_title: "Consolidation-Subdivision Survey",
+                svc5_desc: "Pagsasama at paghahati ng maraming lote para sa development at reorganisasyon.",
+                svc6_title: "Lot Plan Approval",
+                svc6_desc: "Propesyonal na paghahanda at processing ng lot plans para sa government approval.",
+                svc7_title: "Land Titling",
+                svc7_desc: "Kumpletong tulong sa pagkuha at processing ng land titles mula sa Registry of Deeds.",
+                svc8_title: "Transfer of Title",
+                svc8_desc: "Maayos na paglipat ng pagmamay-ari ng lupa na may tamang dokumentasyon at legal na processing.",
+                svc9_title: "Land Title & Lot Plan Research",
+                svc9_desc: "Masusing pananaliksik at verification ng land titles, lot plans, at property records.",
+                svc_request: "Hilingin ang Serbisyo",
+                projects_label: "Mga Kamakailang Proyekto",
+                projects_title: "Pinakabagong Update sa Survey",
+                projects_subtitle: "Mga kamakailang surveying projects na natapos sa buong Zambales",
+                completed: "✅ Natapos",
+                trust_text: "Taos-puso kaming nagpapasalamat sa tiwala na ibinigay niyo sa aming team. 🙏",
+                trust_quote: "Ang Tamang Mapa ay Nagsisimula sa Tamang Team.",
+                trust_sub: "Laging magpa-survey sa Lisensyadong Geodetic Engineer.",
+                coverage_label: "Mapa ng Sakop",
+                coverage_title: "Saan Kami Nagtrabaho",
+                coverage_subtitle: "Tingnan ang aming mga natapos na proyekto sa buong Zambales. I-hover o i-click ang mga pins para makita ang detalye.",
+                projects_completed: "Mga Proyekto",
+                municipalities: "Mga Munisipyo",
+                client_satisfaction: "Kasiyahan ng Kliyente",
+                map_note: "Ang mga lokasyon ay approximate para sa privacy ng kliyente. Maaaring mag-iba ang aktwal na survey sites.",
+                why_label: "Bakit Kami",
+                why_title: "Ano ang Nagpapakilala sa Amin",
+                why_subtitle: "Pinagsasama namin ang karanasan, teknolohiya, at dedikasyon para magbigay ng mahusay na serbisyo.",
+                why1_title: "Katumpakan",
+                why1_desc: "Gumagamit kami ng pinakabagong kagamitan at pamamaraan para masiguro ang pinakamataas na katumpakan sa bawat survey.",
+                why2_title: "Mabilis na Serbisyo",
+                why2_desc: "Naiintindihan namin ang kahalagahan ng deadlines at palagi kaming nagde-deliver nang naka-schedule.",
+                why3_title: "Integridad at Tiwala",
+                why3_desc: "Ang tapat at transparent na pakikitungo ang pundasyon ng aming relasyon sa mga kliyente.",
+                why4_title: "Abot-kayang Presyo",
+                why4_desc: "Makatarungan at transparent na presyo na walang hidden fees o sorpresa.",
+                process_label: "Aming Proseso",
+                process_title: "Paano Kami Nagtatrabaho",
+                process_subtitle: "Isang streamlined na proseso para masiguro na ang iyong proyekto ay matatapos nang maayos at tumpak.",
+                step1: "Konsultasyon",
+                step1_desc: "Pag-usapan ang iyong surveying needs, detalye ng property, at requirements kasama ang aming expert team.",
+                step2: "Field Survey",
+                step2_desc: "Ang aming lisensyadong surveyors ay gagawa ng tumpak na measurements at data collection on-site.",
+                step3: "Processing",
+                step3_desc: "Ang data ay susuriin, gagawan ng plano, at ihahanda ang mga dokumento nang may masusing pag-aalaga.",
+                step4: "Delivery",
+                step4_desc: "Tatanggapin mo ang kumpletong survey documents at reports, handa na para sa submission at paggamit.",
+                testimonials_label: "Mga Testimonial",
+                testimonials_title: "Sabi ng Aming mga Kliyente",
+                testimonials_subtitle: "Makinig sa aming mga satisfied clients na nagtitiwala sa amin para sa kanilang property surveying needs.",
+                cta_title: "Handa na bang Protektahan ang Iyong Lupa?",
+                cta_desc: "Makipag-ugnayan sa amin ngayon para sa libreng konsultasyon. Hayaan ang Gramm na maging perpektong kasosyo mo.",
+                contact_now: "Makipag-ugnayan",
+                call_now: "Tawagan",
+                contact_label: "Makipag-ugnayan",
+                contact_title: "Pag-usapan ang Iyong Proyekto",
+                contact_desc: "May tanong o kailangan ng quote? Makipag-ugnayan sa amin at babalikan ka namin agad.",
+                phone: "Telepono",
+                email: "Email",
+                address: "Address ng Opisina",
+                hours: "Oras ng Trabaho",
+                business_hours: "Lunes - Sabado: 8:00 AM - 5:00 PM",
+                form_title: "Magpadala ng Mensahe",
+                form_desc: "Punan ang form sa ibaba at sasagutin ka namin within 24 hours.",
+                first_name: "Pangalan",
+                last_name: "Apelyido",
+                email_addr: "Email Address",
+                phone_num: "Numero ng Telepono",
+                service_needed: "Serbisyong Kailangan",
+                property_location: "Lokasyon ng Property",
+                message: "Mensahe",
+                send_message: "Ipadala ang Mensahe",
+                footer_desc: "Gramm Geodetic Surveying Development Inc. — Ang iyong perpektong kasosyo sa lupa. Pinoprotektahan ang iyong property nang may integridad simula 2026.",
+                quick_links: "Mga Quick Links",
+                our_services: "Aming mga Serbisyo",
+                contact_info: "Impormasyon sa Pagkontak",
+                copyright: "© 2026 Gramm Geodetic Surveying Development Inc. Lahat ng karapatan ay nakalaan.",
+                privacy: "Patakaran sa Privacy",
+                terms: "Mga Tuntunin ng Serbisyo"
+            },
+            ceb: {
+                nav_home: "Home",
+                nav_about: "Bahin",
+                nav_services: "Serbisyo",
+                nav_projects: "Mga Proyekto",
+                nav_coverage: "Sakop",
+                nav_quote: "Kuha og Quote",
+                hero_badge: "Sugod 2026 • Lisensyado ug Gisaligan",
+                hero_title: "Imong <span class='highlight'>Perpektong Kauban</span> sa Surveying",
+                hero_desc: "Giprotektahan ang imong yuta nga may integridad. Naghatag mi ug propesyonal nga geodetic surveying services sa San Marcelino, Zambales — gikan sa land surveys hangtod title processing, atiman ka namo.",
+                hero_btn1: "Libreng Konsulta",
+                hero_btn2: "Among mga Serbisyo",
+                stat_surveys: "Natapos nga Survey",
+                stat_clients: "Malipayong Kliyente",
+                stat_satisfaction: "Lebel sa Kalipay",
+                card_title: "Propesyonal nga Geodetic Surveying",
+                card_desc: "Tukma nga survey para sa imong panginahanglan sa Zambales ug mga duol nga lugar.",
+                card_feat1: "Land & Subdivision Surveys",
+                card_feat2: "Land Titling & Approval",
+                card_feat3: "Transfer of Title",
+                card_feat4: "Title & Lot Plan Research",
+                badge1: "Gisaligan nga Kauban",
+                badge2: "Lisensyadong Surveyors",
+                scroll: "I-scroll Ubos",
+                established: "Gitukod",
+                about_label: "Bahin Kanamo",
+                about_title: "Giprotektahan ang Imong Yuta nga may <span style='color: var(--secondary);'>Integridad</span>",
+                about_lead: "Imong gisaligan nga geodetic surveying kauban sa Zambales.",
+                about_p1: "Ang Gramm Geodetic Surveying Development Inc. usa ka propesyonal nga surveying firm nga nakabase sa San Marcelino, Zambales. Espesyalista mi sa paghatag ug tukma, kasaligan, ug paspas nga geodetic surveying services sa mga homeowners, developers, ug negosyo sa tibuok rehiyon.",
+                about_p2: "Ang among pangako sa kahusayan ug integridad nagsiguro nga matag transaksyon ug survey gidumala sa pinakataas nga pag-atiman ug katukma. Gikan sa relocation surveys hangtod land titling, kami ang imong one-stop solution para sa tanan nimo nga surveying needs.",
+                feat1: "Lisensyadong Surveyors",
+                feat2: "Tukma nga Resulta",
+                feat3: "Dali nga Serbisyo",
+                feat4: "Abtik nga Presyo",
+                feat5: "Nakatutok sa Kliyente",
+                feat6: "Kumpletong Dokumento",
+                about_btn: "Hibalo-i Pa",
+                services_label: "Among mga Serbisyo",
+                services_title: "Propesyonal nga <span class='highlight'>Serbisyo sa Surveying</span>",
+                services_subtitle: "Naghatag mi ug kompleto nga sakop sa geodetic surveying ug land-related services para sa tanan nimo nga panginahanglan sa yuta.",
+                svc1_title: "Relocation Survey",
+                svc1_desc: "Tukma nga pagtukod pag-usab sa utlanan sa yuta base sa naa nay survey plans ug legal nga dokumento.",
+                svc2_title: "Subdivision Survey",
+                svc2_desc: "Propesyonal nga pagbahin sa mga lote ngadto sa mas gagmay nga bahin nga may tukma nga sukat ug pagsunod sa balaod.",
+                svc3_title: "Segregation Survey",
+                svc3_desc: "Pagbulag sa mga bahin gikan sa mas dako nga lote nga may detalyadong dokumentasyon ug mapping.",
+                svc4_title: "Consolidation Survey",
+                svc4_desc: "Pagsama-samang magkatabang nga mga lote sa usa ka property nga may updated nga survey documentation.",
+                svc5_title: "Consolidation-Subdivision Survey",
+                svc5_desc: "Pagsama ug pagbahin sa daghang mga lote para sa development ug reorganisasyon.",
+                svc6_title: "Lot Plan Approval",
+                svc6_desc: "Propesyonal nga pag-andam ug processing sa lot plans para sa government approval.",
+                svc7_title: "Land Titling",
+                svc7_desc: "Kumpletong tabang sa pagkuha ug processing sa land titles gikan sa Registry of Deeds.",
+                svc8_title: "Transfer of Title",
+                svc8_desc: "Maayong pagbalhin sa pagpanag-iya sa yuta nga may tamang dokumentasyon ug legal nga processing.",
+                svc9_title: "Land Title & Lot Plan Research",
+                svc9_desc: "Masusing panukiduki ug verification sa land titles, lot plans, ug property records.",
+                svc_request: "Pangayo ang Serbisyo",
+                projects_label: "Mga Kamakailang Proyekto",
+                projects_title: "Pinakabag-ong Update sa Survey",
+                projects_subtitle: "Mga kamakailang surveying projects nga nahuman sa tibuok Zambales",
+                completed: "✅ Nahuman",
+                trust_text: "Tinuo-d nga nagpasalamat mi sa salig nga gihatag ninyo sa among team. 🙏",
+                trust_quote: "Ang Tinuod nga Mapa Nagsugod sa Tinuod nga Team.",
+                trust_sub: "Kanunay magpa-survey sa Lisensyadong Geodetic Engineer.",
+                coverage_label: "Mapa sa Sakop",
+                coverage_title: "Asa Mi Nagtrabaho",
+                coverage_subtitle: "Tan-awa ang among mga nahuman nga proyekto sa tibuok Zambales. I-hover o i-click ang mga pins para makita ang detalye.",
+                projects_completed: "Mga Proyekto",
+                municipalities: "Mga Munisipyo",
+                client_satisfaction: "Kalipay sa Kliyente",
+                map_note: "Ang mga lokasyon approximate para sa privacy sa kliyente. Mahimong mag-laen ang aktwal nga survey sites.",
+                why_label: "Ngano Kami",
+                why_title: "Unsa ang Nagpaila Kanamo",
+                why_subtitle: "Gisagop namo ang kasinatian, teknolohiya, ug dedikasyon para maghatag ug maayong serbisyo.",
+                why1_title: "Katukma",
+                why1_desc: "Naggamit mi sa pinakabag-ong kagamitan ug pamaagi para masiguro ang pinakataas nga katukma sa matag survey.",
+                why2_title: "Dali nga Serbisyo",
+                why2_desc: "Nasabtan namo ang importansya sa deadlines ug kanunay mi maghatag naka-schedule.",
+                why3_title: "Integridad ug Salig",
+                why3_desc: "Ang matinud-anon ug transparent nga pakig-ugnay ang pundasyon sa among relasyon sa mga kliyente.",
+                why4_title: "Abtik nga Presyo",
+                why4_desc: "Makatarunganon ug transparent nga presyo nga walay hidden fees o sorpresa.",
+                process_label: "Among Proseso",
+                process_title: "Unsaon Namo Pagtrabaho",
+                process_subtitle: "Usa ka streamlined nga proseso para masiguro nga imong proyekto mahuman nga maayo ug tukma.",
+                step1: "Konsulta",
+                step1_desc: "Hisguti ang imong surveying needs, detalye sa property, ug requirements uban sa among expert team.",
+                step2: "Field Survey",
+                step2_desc: "Among lisensyadong surveyors magbuhat ug tukma nga measurements ug data collection on-site.",
+                step3: "Processing",
+                step3_desc: "Ang data susihon, himoan ug plano, and iandam ang mga dokumento nga may masusing pag-atiman.",
+                step4: "Delivery",
+                step4_desc: "Madawat nimo ang kumpletong survey documents ug reports, andam na para sa submission ug paggamit.",
+                testimonials_label: "Mga Testimonial",
+                testimonials_title: "Sabi sa Among mga Kliyente",
+                testimonials_subtitle: "Paminawa ang among malipayong mga kliyente nga nagasalig kanamo para sa ilang property surveying needs.",
+                cta_title: "Andam na ba nga Protektahan ang Imong Yuta?",
+                cta_desc: "Makig-uban kanamo karon para sa libreng konsulta. Himoa nga Gramm ang imong perpektong kauban.",
+                contact_now: "Makig-uban",
+                call_now: "Tawag",
+                contact_label: "Makig-uban",
+                contact_title: "Hisguti ang Imong Proyekto",
+                contact_desc: "Aduna bay pangutana o kinahanglan og quote? Makig-uban kanamo ug tubagon tika dayon.",
+                phone: "Telepono",
+                email: "Email",
+                address: "Address sa Opisina",
+                hours: "Oras sa Trabaho",
+                business_hours: "Lunes - Sabado: 8:00 AM - 5:00 PM",
+                form_title: "Magpadala ug Mensahe",
+                form_desc: "Punoa ang form sa ubos ug tubagon tika within 24 hours.",
+                first_name: "Ngalan",
+                last_name: "Apelyido",
+                email_addr: "Email Address",
+                phone_num: "Numero sa Telepono",
+                service_needed: "Serbisyong Kinahanglan",
+                property_location: "Lokasyon sa Property",
+                message: "Mensahe",
+                send_message: "Ipadala ang Mensahe",
+                footer_desc: "Gramm Geodetic Surveying Development Inc. — Imong perpektong kauban sa yuta. Giprotektahan ang imong property nga may integridad sukad 2026.",
+                quick_links: "Mga Quick Links",
+                our_services: "Among mga Serbisyo",
+                contact_info: "Impormasyon sa Pagkontak",
+                copyright: "© 2026 Gramm Geodetic Surveying Development Inc. Tanan nga katungod gitagana.",
+                privacy: "Patakaran sa Privacy",
+                terms: "Mga Tuntunin sa Serbisyo"
+            },
+            ilo: {
+                nav_home: "Home",
+                nav_about: "Maipapan",
+                nav_services: "Serbisio",
+                nav_projects: "Dagiti Proyekto",
+                nav_coverage: "Sakop",
+                nav_quote: "Mangala ti Quote",
+                hero_badge: "Manipud 2026 • Lisensiado ken Namnamnamaan",
+                hero_title: "Ti <span class='highlight'>Nasayaat a Kaarruba</span> yo iti Surveying",
+                hero_desc: "Ikaruaran ti daga yo nga adda integridad. Mangipaay kami iti propesyonal a geodetic surveying services idiay San Marcelino, Zambales — manipud land surveys agingga title processing, aywanankayo.",
+                hero_btn1: "Libre a Konsulta",
+                hero_btn2: "Dagiti Serbisio mi",
+                stat_surveys: "Naipas ngem Survey",
+                stat_clients: "Naragsak a Kliyente",
+                stat_satisfaction: "Pateg ti Ragsak",
+                card_title: "Propesyonal a Geodetic Surveying",
+                card_desc: "Umiso a survey para iti pangkasapulan yo idiay Zambales ken dagiti asideg a lugar.",
+                card_feat1: "Land & Subdivision Surveys",
+                card_feat2: "Land Titling & Approval",
+                card_feat3: "Transfer of Title",
+                card_feat4: "Title & Lot Plan Research",
+                badge1: "Namnamnamaan a Kaarruba",
+                badge2: "Lisensiado a Surveyors",
+                scroll: "I-scroll Baba",
+                established: "Napundar",
+                about_label: "Maipapan Kadakami",
+                about_title: "Ikaruaran ti Daga yo nga adda <span style='color: var(--secondary);'>Integridad</span>",
+                about_lead: "Ti namnamnamaan yo a geodetic surveying kaarruba idiay Zambales.",
+                about_p1: "Ti Gramm Geodetic Surveying Development Inc. ket propesyonal a surveying firm a nakabase idiay San Marcelino, Zambales. Espesialisita kami iti mangipaay umiso, mapagtalkan, ken napardas a geodetic surveying services kadagiti homeowners, developers, ken negosio iti intero a rehion.",
+                about_p2: "Ti pangpangngeddeng mi iti kinasayaat ken integridad ket siguradoen nga tunggal transaksion ken survey ket maipatarus iti kangatuan nga aywanan ken katumpakan. Manipud relocation surveys agingga land titling, kami ti one-stop solution para kadagiti amin surveying needs yo.",
+                feat1: "Lisensiado a Surveyors",
+                feat2: "Umiso a Resulta",
+                feat3: "Napardas a Serbisio",
+                feat4: "Mapagtalkan a Presio",
+                feat5: "Nakatutok iti Kliyente",
+                feat6: "Kompleto a Dokumento",
+                about_btn: "Ammuen Pay",
+                services_label: "Dagiti Serbisio mi",
+                services_title: "Propesyonal a <span class='highlight'>Serbisio iti Surveying</span>",
+                services_subtitle: "Mangipaay kami iti kompleto a sakop ti geodetic surveying ken land-related services para kadagiti amin pangkasapulan yo iti daga.",
+                svc1_title: "Relocation Survey",
+                svc1_desc: "Umiso a panangibangon manen ti pagbeddengan ti daga base kadagiti addan survey plans ken legal a dokumento.",
+                svc2_title: "Subdivision Survey",
+                svc2_desc: "Propesyonal a pannakabingay dagiti lote kadagiti basbassit a paset nga adda umiso a sukat ken pannakaitungpal iti linteg.",
+                svc3_title: "Segregation Survey",
+                svc3_desc: "Panangisina kadagiti paset manipud iti dakdakkel a lote nga adda detalyado a dokumentasion ken mapping.",
+                svc4_title: "Consolidation Survey",
+                svc4_desc: "Panangitipon kadagiti agsidong a lote iti maysa a property nga adda naupdate a survey documentation.",
+                svc5_title: "Consolidation-Subdivision Survey",
+                svc5_desc: "Panangitipon ken pannakabingay dagiti adu a lote para iti development ken reorganisasion.",
+                svc6_title: "Lot Plan Approval",
+                svc6_desc: "Propesyonal a panangisagana ken processing dagiti lot plans para iti government approval.",
+                svc7_title: "Land Titling",
+                svc7_desc: "Kompleto a tulong iti panangala ken processing dagiti land titles manipud iti Registry of Deeds.",
+                svc8_title: "Transfer of Title",
+                svc8_desc: "Nasayaat a panangiyawid ti panagtagikua iti daga nga adda umiso a dokumentasion ken legal a processing.",
+                svc9_title: "Land Title & Lot Plan Research",
+                svc9_desc: "Masusing panagsukisok ken verification dagiti land titles, lot plans, ken property records.",
+                svc_request: "Pangawaten ti Serbisio",
+                projects_label: "Dagiti Kamakailan a Proyekto",
+                projects_title: "Kamakailan nga Update iti Survey",
+                projects_subtitle: "Dagiti kamakailan a surveying projects a naipas idiay Zambales",
+                completed: "✅ Naipas",
+                trust_text: "Pudno a nagyaman kami iti namnama a inted yo kadakami. 🙏",
+                trust_quote: "Ti Umiso a Mapa ket Rugi iti Umiso a Team.",
+                trust_sub: "Kanayon a magpa-survey iti Lisensiado a Geodetic Engineer.",
+                coverage_label: "Mapa ti Sakop",
+                coverage_title: "Ayan ti Nagtrabahuan mi",
+                coverage_subtitle: "Kitaen dagiti naipas mi a proyekto idiay intero a Zambales. I-hover wenno i-click dagiti pins para makita ti detalye.",
+                projects_completed: "Dagiti Proyekto",
+                municipalities: "Dagiti Munisipyo",
+                client_satisfaction: "Ragsak ti Kliyente",
+                map_note: "Dagiti lokasion ket approximate para iti privacy ti kliyente. Mabalin a magbaliw ti aktwal a survey sites.",
+                why_label: "Apay Kami",
+                why_title: "Ania ti Mangilasin Kadakami",
+                why_subtitle: "Inkaykayna mi ti kinasarita, teknolohia, ken dedikasion para mangipaay ti nasayaat a serbisio.",
+                why1_title: "Katumpakan",
+                why1_desc: "Agus-usar kami iti kamakailan a kagamitan ken pamay-an para masiguro ti kangatuan a katumpakan iti tunggal survey.",
+                why2_title: "Napardas a Serbisio",
+                why2_desc: "Maawatan mi ti kinapateg dagiti deadlines ken kanayon nga agipaay kami naka-schedule.",
+                why3_title: "Integridad ken Namnama",
+                why3_desc: "Ti napudno ken transparent a pannakikita ti pundasion ti relasion mi kadagiti kliyente.",
+                why4_title: "Mapagtalkan a Presio",
+                why4_desc: "Makatarungan ken transparent a presio nga awan ti hidden fees wenno sorpresa.",
+                process_label: "Proseso mi",
+                process_title: "Kasano ti Panagtrabaho mi",
+                process_subtitle: "Maysa a streamlined a proseso para masiguro nga maipas ti proyekto yo nga nasayaat ken umiso.",
+                step1: "Konsulta",
+                step1_desc: "Pagtutulagan ti surveying needs, detalye ti property, ken requirements kadagiti expert team mi.",
+                step2: "Field Survey",
+                step2_desc: "Dagiti lisensiado mi a surveyors ket agaramid umiso a measurements ken data collection on-site.",
+                step3: "Processing",
+                step3_desc: "Ti data ket susaren, aramiden ken plano, ken isagana dagiti dokumento nga adda masusing aywanan.",
+                step4: "Delivery",
+                step4_desc: "Mawatwat yo ti kompleto a survey documents ken reports, nalpasen para iti submission ken panagusar.",
+                testimonials_label: "Dagiti Testimonial",
+                testimonials_title: "Sabi dagiti Kliyente mi",
+                testimonials_subtitle: "Denggen dagiti naragsak a kliyente a namnama kadakami para iti property surveying needs da.",
+                cta_title: "Nalpasen a Protektaran ti Daga yo?",
+                cta_desc: "Makikita kadakami ita para iti libre a konsulta. Ipalubos yo nga Gramm ti nasayaat a kaarruba yo.",
+                contact_now: "Makikita",
+                call_now: "Awagan",
+                contact_label: "Makikita",
+                contact_title: "Pagtutulagan ti Proyekto yo",
+                contact_desc: "Adda kadi panggep wenno kasapulan ti quote? Makikita kadakami ken sungbatan tayo dagus.",
+                phone: "Telepono",
+                email: "Email",
+                address: "Address ti Opisina",
+                hours: "Oras ti Trabaho",
+                business_hours: "Lunes - Sabado: 8:00 AM - 5:00 PM",
+                form_title: "Mangipaay ti Mensahe",
+                form_desc: "Punuen ti form dita baba ken sungbatan tayo within 24 hours.",
+                first_name: "Nagan",
+                last_name: "Apelyido",
+                email_addr: "Email Address",
+                phone_num: "Numero ti Telepono",
+                service_needed: "Serbisio a Kasapulan",
+                property_location: "Lokasion ti Property",
+                message: "Mensahe",
+                send_message: "Ipaay ti Mensahe",
+                footer_desc: "Gramm Geodetic Surveying Development Inc. — Nasayaat a kaarruba yo iti daga. Ikaruaran ti property yo nga adda integridad manipud 2026.",
+                quick_links: "Dagiti Quick Links",
+                our_services: "Dagiti Serbisio mi",
+                contact_info: "Impormasion iti Pagkontak",
+                copyright: "© 2026 Gramm Geodetic Surveying Development Inc. Amin a karapatan ket nailasin.",
+                privacy: "Patakaran iti Privacy",
+                terms: "Dagiti Tuntunin ti Serbisio"
+            },
+            kap: {
+                nav_home: "Home",
+                nav_about: "Tungkul",
+                nav_services: "Serbisyu",
+                nav_projects: "Deng Proyekto",
+                nav_coverage: "Sakup",
+                nav_quote: "Kumaup Quote",
+                hero_badge: "Mumpin 2026 • Lisensyadu at Pikpaniwalaan",
+                hero_title: "Iyu <span class='highlight'>Masanting a Kasamitan</span> king Surveying",
+                hero_desc: "Piprotektahan ya ing kekayung yatu king integridad. Magbigye kami propesyonal a geodetic surveying services king San Marcelino, Zambales — manibat land surveys angga title processing, aalagaan ke ka.",
+                hero_btn1: "Libreng Konsulta",
+                hero_btn2: "Deng Serbisyu mi",
+                stat_surveys: "Mitapus a Survey",
+                stat_clients: "Masayang Kliyenti",
+                stat_satisfaction: "Antas ning Kaluguran",
+                card_title: "Propesyonal a Geodetic Surveying",
+                card_desc: "Tumpak a survey para king kekayung pangangailangan king Zambales at karatig a lugal.",
+                card_feat1: "Land & Subdivision Surveys",
+                card_feat2: "Land Titling & Approval",
+                card_feat3: "Transfer of Title",
+                card_feat4: "Title & Lot Plan Research",
+                badge1: "Pikpaniwalaan a Kasamitan",
+                badge2: "Lisensyadu a Surveyors",
+                scroll: "I-scroll Mumura",
+                established: "Mitatatag",
+                about_label: "Tungkul Kanamu",
+                about_title: "Piprotektahan ing Kekayung Yatu king <span style='color: var(--secondary);'>Integridad</span>",
+                about_lead: "Ing kekayung pikpaniwalaan a geodetic surveying kasamitan king Zambales.",
+                about_p1: "Ing Gramm Geodetic Surveying Development Inc. metung yang propesyonal a surveying firm a nakabase king San Marcelino, Zambales. Espesyalista kami king pamagbigye tumpak, mapanigan, at mabilis a geodetic surveying services kareng homeowners, developers, at negosyu king buong rehiyon.",
+                about_p2: "Ing pamangaku mi king kahusayan at integridad siguruhan yang balang transaksyon at survey ay pinamangasiwaan king pinakamatas a pag-alaga at katumpakan. Manibat relocation surveys angga land titling, kami ing kekayung one-stop solution para kareng ngan kekayung surveying needs.",
+                feat1: "Lisensyadu a Surveyors",
+                feat2: "Tumpak a Resulta",
+                feat3: "Mabilis a Serbisyu",
+                feat4: "Abtik a Presyu",
+                feat5: "Makatutuk king Kliyenti",
+                feat6: "Kumpletung Dokumentu",
+                about_btn: "Alaman Pa",
+                services_label: "Deng Serbisyu mi",
+                services_title: "Propesyonal a <span class='highlight'>Serbisyu king Surveying</span>",
+                services_subtitle: "Magbigye kami kumpletung sakup geodetic surveying at land-related services para kareng ngan kekayung pangangailangan king yatu.",
+                svc1_title: "Relocation Survey",
+                svc1_desc: "Tumpak a pamagtukdo pasibayu king hangganan yatu base king umiiral a survey plans at legal a dokumentu.",
+                svc2_title: "Subdivision Survey",
+                svc2_desc: "Propesyonal a pamaghati kareng lote kareng mas malating bahagi a may tumpak a sukat at pagsunud king batas.",
+                svc3_title: "Segregation Survey",
+                svc3_desc: "Pamagbulag kareng bahagi manibat king mas malaking lote a may detalyadung dokumentasyon at mapping.",
+                svc4_title: "Consolidation Survey",
+                svc4_desc: "Pamagsama-samang magkatabing a lote king metung a property a may updated a survey documentation.",
+                svc5_title: "Consolidation-Subdivision Survey",
+                svc5_desc: "Pamagsama at pamaghati kareng dakal a lote para king development at reorganisasyon.",
+                svc6_title: "Lot Plan Approval",
+                svc6_desc: "Propesyonal a pamag-andam at processing kareng lot plans para king government approval.",
+                svc7_title: "Land Titling",
+                svc7_desc: "Kumpletung tabang king pamangaku at processing kareng land titles manibat king Registry of Deeds.",
+                svc8_title: "Transfer of Title",
+                svc8_desc: "Maayos a pamagbalhin king pagmamay-ari yatu a may tamang dokumentasyon at legal a processing.",
+                svc9_title: "Land Title & Lot Plan Research",
+                svc9_desc: "Masusing pananaliksik at verification kareng land titles, lot plans, at property records.",
+                svc_request: "Mangaku Serbisyu",
+                projects_label: "Deng Kamakailan a Proyekto",
+                projects_title: "Pinakabag-ung Update king Survey",
+                projects_subtitle: "Deng kamakailan a surveying projects a mitapus king buong Zambales",
+                completed: "✅ Mitapus",
+                trust_text: "Tunay kung magpasalamat king tiwala a ibigay yu king team mi. 🙏",
+                trust_quote: "Ing Tumpak a Mapa ay Mumpin king Tumpak a Team.",
+                trust_sub: "Kaniaman magpa-survey king Lisensyadung Geodetic Engineer.",
+                coverage_label: "Mapa ning Sakup",
+                coverage_title: "Nukarin Mi Pagtrabahuan",
+                coverage_subtitle: "Lawen ye deng mitapus mi a proyekto king buong Zambales. I-hover o i-click deng pins para makita ing detalye.",
+                projects_completed: "Deng Proyekto",
+                municipalities: "Deng Munisipyo",
+                client_satisfaction: "Kaluguran ning Kliyenti",
+                map_note: "Deng lokasyon ay approximate para king privacy ning kliyenti. Malyaring magbali ing aktwal a survey sites.",
+                why_label: "Bakit Kami",
+                why_title: "Nanu ing Magpaila Kanamu",
+                why_subtitle: "Sasakup mi ing karanasan, teknolohiya, at dedikasyon para magbigye masayang serbisyu.",
+                why1_title: "Katumpakan",
+                why1_desc: "Gumagamit kami king pinakabag-ung kagamitan at pamamaraan para masiguro ing pinakamatas a katumpakan king balang survey.",
+                why2_title: "Mabilis a Serbisyu",
+                why2_desc: "Naintindihan mi ing importansya ning deadlines at kaniaman magbigye naka-schedule.",
+                why3_title: "Integridad at Tiwala",
+                why3_desc: "Ing tapat at transparent a pakikitungo ing pundasyon ning relasyon mi kareng kliyenti.",
+                why4_title: "Abtik a Presyu",
+                why4_desc: "Makatarungan at transparent a presyu a walang hidden fees o sorpresa.",
+                process_label: "Prosesu mi",
+                process_title: "Kasanu Mi Pagtrabahu",
+                process_subtitle: "Metung a streamlined a proseso para masiguro a maipas ing kekayung proyekto a maayos at tumpak.",
+                step1: "Konsulta",
+                step1_desc: "Pagtulagan ing surveying needs, detalye ning property, at requirements kareng expert team mi.",
+                step2: "Field Survey",
+                step2_desc: "Deng lisensyadu mi a surveyors gagawan tumpak a measurements at data collection on-site.",
+                step3: "Processing",
+                step3_desc: "Ing data susihon, gagawan at plano, at ihahanda deng dokumentu a may masusing pag-alaga.",
+                step4: "Delivery",
+                step4_desc: "Tatanggapin ye ing kumpletung survey documents at reports, handa na para king submission at pamag-usa.",
+                testimonials_label: "Deng Testimonial",
+                testimonials_title: "Sabi reng Kliyenti mi",
+                testimonials_subtitle: "Pakinggan ye deng masayang kliyenti a magtiwala kanamu para kareng property surveying needs da.",
+                cta_title: "Handa na bang Protektaran ing Yatu?",
+                cta_desc: "Makipag-ugnayan kanamu ngeni para king libreng konsulta. Hayaan ye ing Gramm a maging perpektung kasamitan yo.",
+                contact_now: "Makipag-ugnayan",
+                call_now: "Tawagan",
+                contact_label: "Makipag-ugnayan",
+                contact_title: "Pagtulagan ing Kekayung Proyekto",
+                contact_desc: "May tanong o kailangan quote? Makipag-ugnayan kanamu at babalikan ka mi agad.",
+                phone: "Teleponu",
+                email: "Email",
+                address: "Address ning Opisina",
+                hours: "Oras ning Trabahu",
+                business_hours: "Lunes - Sabado: 8:00 AM - 5:00 PM",
+                form_title: "Magpadala Mensahe",
+                form_desc: "Punuan ing form king mumura at sasagutan ka mi within 24 hours.",
+                first_name: "Lagyu",
+                last_name: "Apelyidu",
+                email_addr: "Email Address",
+                phone_num: "Numeru ning Teleponu",
+                service_needed: "Serbisyung Kailangan",
+                property_location: "Lokasyon ning Property",
+                message: "Mensahe",
+                send_message: "Ipadala ing Mensahe",
+                footer_desc: "Gramm Geodetic Surveying Development Inc. — Perpektung kasamitan yu king yatu. Piprotektahan ing kekayung property a may integridad manibat 2026.",
+                quick_links: "Deng Quick Links",
+                our_services: "Deng Serbisyu mi",
+                contact_info: "Impormasyun king Pagkontak",
+                copyright: "© 2026 Gramm Geodetic Surveying Development Inc. Ngan karapatan ila-lan.",
+                privacy: "Patakaran king Privacy",
+                terms: "Deng Tuntunin ning Serbisyu"
+            }
+        };
+
+        let currentLanguage = 'en';
+
+        // Load saved language or default to English
+        window.addEventListener('load', function() {
+            const savedLang = localStorage.getItem('gramm_language') || 'en';
+            changeLanguage(savedLang);
+        });
+
+        function toggleLanguageDropdown() {
+            document.getElementById('languageDropdown').classList.toggle('active');
+        }
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('gramm_language', lang);
+            
+            // Update all elements with data-translate attribute
+            document.querySelectorAll('[data-translate]').forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[lang] && translations[lang][key]) {
+                    element.innerHTML = translations[lang][key];
+                }
+            });
+            
+            // Update active state in dropdown
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            
+            // Find and activate the correct option
+            const options = document.querySelectorAll('.language-option');
+            options.forEach(option => {
+                if (option.getAttribute('onclick').includes(lang)) {
+                    option.classList.add('active');
+                }
+            });
+            
+            // Update button text
+            document.getElementById('currentLang').textContent = lang.toUpperCase();
+            
+            // Close dropdown
+            document.getElementById('languageDropdown').classList.remove('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.language-selector')) {
+                document.getElementById('languageDropdown').classList.remove('active');
+            }
+        });
+
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 100
+        });
+
+        // Preloader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('preloader').classList.add('hidden');
+            }, 1500);
+        });
+
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile menu
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navLinks = document.getElementById('navLinks');
+        const navOverlay = document.getElementById('navOverlay');
+
+        mobileToggle.addEventListener('click', () => {
+            mobileToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+            navOverlay.classList.toggle('active');
+            document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+        });
+
+        navOverlay.addEventListener('click', () => {
+            mobileToggle.classList.remove('active');
+            navLinks.classList.remove('active');
+            navOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        // Close mobile menu on link click
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+                navOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Active nav link on scroll
+        const sections = document.querySelectorAll('section[id]');
+        window.addEventListener('scroll', () => {
+            const scrollY = window.pageYOffset;
+            sections.forEach(section => {
+                const sectionHeight = section.offsetHeight;
+                const sectionTop = section.offsetTop - 100;
+                const sectionId = section.getAttribute('id');
+                const navLink = document.querySelector(`.nav-links a[href="#${sectionId}"]`);
+                if (navLink) {
+                    if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+                        navLink.classList.add('active');
+                    } else {
+                        navLink.classList.remove('active');
+                    }
+                }
+            });
+        });
+
+        // Back to top
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Counter animation
+        const counters = document.querySelectorAll('.counter');
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counter = entry.target;
+                    const target = parseInt(counter.getAttribute('data-target'));
+                    const duration = 2000;
+                    const step = target / (duration / 16);
+                    let current = 0;
+
+                    const updateCounter = () => {
+                        current += step;
+                        if (current < target) {
+                            counter.textContent = Math.floor(current);
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            counter.textContent = target;
+                        }
+                    };
+
+                    updateCounter();
+                    counterObserver.unobserve(counter);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(counter => counterObserver.observe(counter));
+
+        // Form submission
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const firstName = formData.get('firstName');
+            const service = formData.get('service');
+            
+            // Create WhatsApp message
+            const message = `Hello! My name is ${firstName}. I'm interested in your ${service} service. I would like to get more information. Thank you!`;
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappURL = `https://wa.me/639566333644?text=${encodedMessage}`;
+            
+            // Show success message
+            const btn = this.querySelector('.form-submit');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> Message Sent! Redirecting...';
+            btn.style.background = '#10B981';
+            
+            setTimeout(() => {
+                window.open(whatsappURL, '_blank');
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+                this.reset();
+            }, 1500);
+        });
+
+        // Smooth reveal animation for elements
+        const fadeElements = document.querySelectorAll('.fade-up');
+        const fadeObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        fadeElements.forEach(el => fadeObserver.observe(el));
+
+        // ===== INTERACTIVE MAP LOGIC =====
+        window.addEventListener('load', function() {
+            if (typeof L !== 'undefined') {
+                // Initialize map without fixed center/zoom
+                var map = L.map('projects-map', {
+                    zoomControl: true,
+                    scrollWheelZoom: false
+                });
+
+                // Add OpenStreetMap tiles
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors',
+                    maxZoom: 18
+                }).addTo(map);
+
+                // Project data
+                var projects = [
+                    { lat: 14.970, lng: 119.910, location: "Luna, San Antonio", service: "Relocation Survey", date: "May 09, 2026" },
+                    { lat: 14.850, lng: 120.020, location: "Pinagrealan, Candelaria", service: "Subdivision Survey", date: "May 08, 2026" },
+                    { lat: 14.920, lng: 119.970, location: "Balaybay, Castillejos", service: "Relocation Survey", date: "May 07, 2026" },
+                    { lat: 15.090, lng: 119.910, location: "Inhibol, Masinloc", service: "Relocation Survey", date: "May 05, 2026" },
+                    { lat: 14.910, lng: 119.980, location: "Nagbayan, Castillejos", service: "Relocation Survey", date: "May 01, 2026" },
+                    { lat: 14.950, lng: 119.950, location: "San Marcelino Office", service: "Main Office", date: "Established 2026" }
+                ];
+
+                // Custom marker style
+                var customIcon = L.divIcon({
+                    html: '<div style="background:#2563EB;width:14px;height:14px;border-radius:50%;border:3px solid white;box-shadow:0 3px 8px rgba(0,0,0,0.3);"></div>',
+                    className: 'custom-marker',
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7]
+                });
+
+                // Create a group to hold all markers
+                var markersGroup = L.featureGroup();
+
+                // Add markers to the group
+                projects.forEach(function(project) {
+                    var marker = L.marker([project.lat, project.lng], { icon: customIcon })
+                        .bindPopup(`
+                            <div class="popup-title">📍 ${project.location}</div>
+                            <div class="popup-service">📐 ${project.service}</div>
+                            <div class="popup-date">📅 Completed: ${project.date}</div>
+                        `);
+                    markersGroup.addLayer(marker);
+                });
+
+                // Add all markers to the map at once
+                markersGroup.addTo(map);
+
+                // Auto-center: Fit map to show all markers clearly with padding
+                map.fitBounds(markersGroup.getBounds(), { padding: [60, 60], maxZoom: 12 });
+                
+                // Ensure map renders correctly after load
+                setTimeout(function() {
+                    map.invalidateSize();
+                    map.fitBounds(markersGroup.getBounds(), { padding: [60, 60], maxZoom: 12 });
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>
