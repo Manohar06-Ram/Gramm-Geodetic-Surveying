@@ -4705,6 +4705,7 @@ html, body {
 
                 // Add markers to the group
                 projects.forEach(function(project) {
+                    console.log("Adding marker:", project.location, project.lat, project.lng);
                     var marker = L.marker([project.lat, project.lng], { icon: customIcon })
                         .bindPopup(`
                             <div class="popup-title">📍 ${project.location}</div>
