@@ -2897,6 +2897,19 @@ html, body {
         display: flex !important;
     }
 }
+/* ===== HIDE MOBILE LANGUAGE BUTTONS ON DESKTOP ===== */
+@media (min-width: 769px) {
+    .mobile-lang-container {
+        display: none !important;
+    }
+}
+
+/* ===== SHOW MOBILE LANGUAGE BUTTONS ONLY ON MOBILE ===== */
+@media (max-width: 768px) {
+    .mobile-lang-container {
+        display: block !important;
+    }
+}
     </style>
 </head>
 <body>
