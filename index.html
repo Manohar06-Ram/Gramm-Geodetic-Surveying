@@ -2910,6 +2910,17 @@ html, body {
         display: block !important;
     }
 }
+/* HIDE MOBILE LANGUAGE BUTTONS ON DESKTOP */
+@media (min-width: 769px) {
+    .mobile-lang-container {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+}
     </style>
 </head>
 <body>
