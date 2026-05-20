@@ -2921,6 +2921,38 @@ html, body {
         margin: 0 !important;
     }
 }
+/* ===== DESKTOP NAVBAR ALIGNMENT FIX ===== */
+@media (min-width: 769px) {
+    /* 1. Create consistent spacing between links */
+    .nav-links {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important; /* Adds equal space between all links */
+        margin: 0 15px !important; /* Adds breathing room on left and right of the menu */
+    }
+
+    /* 2. Remove individual margins that cause unevenness */
+    .nav-links li {
+        margin: 0 !important;
+    }
+
+    /* 3. Make text links look uniform */
+    .nav-links a:not(.nav-cta) {
+        padding: 8px 16px !important;
+        border-radius: 20px !important; /* Matches the button curve */
+    }
+
+    /* 4. Push the 'Get Quote' button away from the links */
+    .nav-cta {
+        margin-left: 20px !important; /* Creates a clear separation */
+        padding: 10px 24px !important; /* Makes the button slightly larger/bolder */
+    }
+    
+    /* 5. Align the Language dropdown perfectly */
+    .language-selector {
+        margin-left: 15px !important;
+    }
+}
     </style>
 </head>
 <body>
