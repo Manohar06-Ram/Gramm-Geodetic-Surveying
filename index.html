@@ -2576,6 +2576,33 @@ html, body {
 *, *::before, *::after {
     box-sizing: border-box;
 }
+/* Fix mobile menu alignment */
+@media (max-width: 768px) {
+    .nav-links {
+        padding: 120px 30px 40px !important;
+        text-align: center !important;
+    }
+    
+    .nav-links li {
+        margin: 8px 0 !important;
+        width: 100% !important;
+    }
+    
+    .nav-links a {
+        display: block !important;
+        text-align: center !important;
+        padding: 16px 24px !important;
+        border-radius: 12px !important;
+    }
+    
+    /* Make Get Quote button stand out */
+    .nav-links .nav-cta {
+        margin-top: 20px !important;
+        display: inline-block !important;
+        width: 100% !important;
+        max-width: 250px !important;
+    }
+}
     </style>
 </head>
 <body>
@@ -2603,13 +2630,30 @@ html, body {
                 </div>
             </a>
             <ul class="nav-links" id="navLinks">
-                <li><a href="#home" class="active" data-translate="nav_home">Home</a></li>
-                <li><a href="#about" data-translate="nav_about">About</a></li>
-                <li><a href="#services" data-translate="nav_services">Services</a></li>
-                <li><a href="#projects" data-translate="nav_projects">Projects</a></li>
-                <li><a href="#coverage" data-translate="nav_coverage">Coverage</a></li>
-                <li><a href="#contact" class="nav-cta" data-translate="nav_quote">Get Quote</a></li>
-            </ul>
+    <li><a href="#home" class="active" data-translate="nav_home">Home</a></li>
+    <li><a href="#about" data-translate="nav_about">About</a></li>
+    <li><a href="#services" data-translate="nav_services">Services</a></li>
+    <li><a href="#projects" data-translate="nav_projects">Projects</a></li>
+    <li><a href="#coverage" data-translate="nav_coverage">Coverage</a></li>
+    
+    <!-- Language Selector for Mobile -->
+    <li style="margin: 20px 0; padding: 0 20px;">
+        <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-bottom: 10px;">
+            <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">
+                Select Language
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+                <button onclick="changeLanguage('en')" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem;">🇬🇧 EN</button>
+                <button onclick="changeLanguage('tl')" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem;">🇵🇭 TL</button>
+                <button onclick="changeLanguage('ceb')" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem;">🌐 CEB</button>
+                <button onclick="changeLanguage('ilo')" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem;">🌐 ILO</button>
+                <button onclick="changeLanguage('kap')" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.85rem;">🌐 KAP</button>
+            </div>
+        </div>
+    </li>
+    
+    <li><a href="#contact" class="nav-cta" data-translate="nav_quote">Get Quote</a></li>
+</ul>
             <div class="nav-right" style="display: flex; align-items: center;">
                 <!-- Language Selector -->
                 <div class="language-selector">
