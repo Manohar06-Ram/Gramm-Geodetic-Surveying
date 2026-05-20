@@ -2281,6 +2281,301 @@
             opacity: 1;
             visibility: visible;
         }
+        /* ===== MOBILE RESPONSIVENESS FIXES ===== */
+@media (max-width: 768px) {
+    /* Fix overall page width */
+    body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    /* Fix container padding */
+    .container {
+        padding: 0 16px !important;
+        max-width: 100% !important;
+    }
+    
+    /* Fix hero section */
+    .hero-content {
+        grid-template-columns: 1fr !important;
+        padding: 100px 16px 60px !important;
+        gap: 30px !important;
+    }
+    
+    .hero h1 {
+        font-size: 1.8rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 16px !important;
+    }
+    
+    .hero-description {
+        font-size: 0.95rem !important;
+        margin-bottom: 24px !important;
+    }
+    
+    .hero-buttons {
+        flex-direction: column !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+    
+    .btn {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 12px 24px !important;
+    }
+    
+    .hero-stats {
+        flex-direction: column !important;
+        gap: 16px !important;
+        width: 100% !important;
+    }
+    
+    .hero-stat {
+        text-align: center !important;
+        width: 100% !important;
+    }
+    
+    .hero-stat-number {
+        font-size: 1.8rem !important;
+    }
+    
+    /* Fix hero card */
+    .hero-card {
+        padding: 24px !important;
+        margin: 0 auto !important;
+    }
+    
+    .hero-card-icon {
+        width: 80px !important;
+        height: 80px !important;
+        margin: 0 auto 16px !important;
+    }
+    
+    /* Fix sections */
+    .section {
+        padding: 60px 0 !important;
+    }
+    
+    .section-header {
+        margin-bottom: 40px !important;
+        padding: 0 16px !important;
+    }
+    
+    .section-title {
+        font-size: 1.6rem !important;
+        padding: 0 16px !important;
+    }
+    
+    .section-subtitle {
+        font-size: 0.9rem !important;
+        padding: 0 16px !important;
+    }
+    
+    /* Fix about section */
+    .about-grid {
+        grid-template-columns: 1fr !important;
+        gap: 40px !important;
+        padding: 0 16px !important;
+    }
+    
+    .about-content h2 {
+        font-size: 1.6rem !important;
+    }
+    
+    .about-features {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+    
+    /* Fix services grid */
+    .services-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+        padding: 0 16px !important;
+    }
+    
+    .service-card {
+        padding: 24px 20px !important;
+    }
+    
+    /* Fix projects grid */
+    .projects-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+        padding: 0 16px !important;
+    }
+    
+    /* Fix map stats */
+    .map-stats-bar {
+        flex-direction: column !important;
+        gap: 20px !important;
+        padding: 0 16px !important;
+    }
+    
+    .map-stat-item {
+        width: 100% !important;
+    }
+    
+    #projects-map {
+        height: 300px !important;
+    }
+    
+    /* Fix why choose us */
+    .why-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+        padding: 0 16px !important;
+    }
+    
+    /* Fix process timeline */
+    .process-timeline {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+        padding: 0 16px !important;
+    }
+    
+    .process-timeline::before {
+        display: none !important;
+    }
+    
+    /* Fix testimonials */
+    .testimonials-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+        padding: 0 16px !important;
+    }
+    
+    /* Fix contact section */
+    .contact-grid {
+        grid-template-columns: 1fr !important;
+        gap: 40px !important;
+    }
+    
+    .contact-info {
+        padding: 0 16px !important;
+    }
+    
+    .contact-form-wrapper {
+        padding: 24px 20px !important;
+        margin: 0 16px !important;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+    
+    /* Fix CTA section */
+    .cta-content {
+        padding: 0 16px !important;
+    }
+    
+    .cta-content h2 {
+        font-size: 1.6rem !important;
+    }
+    
+    .cta-buttons {
+        flex-direction: column !important;
+        width: 100% !important;
+        padding: 0 16px !important;
+    }
+    
+    /* Fix footer */
+    .footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: 30px !important;
+        padding: 40px 16px !important;
+    }
+    
+    .footer-bottom {
+        flex-direction: column !important;
+        text-align: center !important;
+        padding: 20px 16px !important;
+    }
+    
+    /* Fix mobile menu */
+    .nav-links {
+        width: 100% !important;
+        padding: 80px 24px 24px !important;
+    }
+    
+    .nav-links a {
+        padding: 16px 20px !important;
+        font-size: 1.1rem !important;
+    }
+    
+    /* Fix floating badges */
+    .floating-badge {
+        padding: 10px 16px !important;
+        font-size: 0.75rem !important;
+    }
+    
+    .floating-badge.top-right {
+        top: 80px !important;
+        right: 16px !important;
+    }
+    
+    .floating-badge.bottom-left {
+        bottom: 16px !important;
+        left: 16px !important;
+    }
+    
+    /* Fix WhatsApp button */
+    .whatsapp-float {
+        bottom: 20px !important;
+        left: 20px !important;
+        width: 50px !important;
+        height: 50px !important;
+    }
+    
+    /* Fix back to top button */
+    .back-to-top {
+        bottom: 20px !important;
+        right: 20px !important;
+        width: 45px !important;
+        height: 45px !important;
+    }
+}
+
+/* Extra small devices (phones, 480px and below) */
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    .hero-description {
+        font-size: 0.9rem !important;
+    }
+    
+    .section-title {
+        font-size: 1.4rem !important;
+    }
+    
+    .btn {
+        padding: 10px 20px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .hero-card h3 {
+        font-size: 1.1rem !important;
+    }
+    
+    .hero-card p {
+        font-size: 0.85rem !important;
+    }
+}
+
+/* Prevent horizontal scroll */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Fix all containers */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
     </style>
 </head>
 <body>
