@@ -2953,6 +2953,32 @@ html, body {
         margin-left: 15px !important;
     }
 }
+/* ===== DESKTOP NAVBAR RIGHT ALIGNMENT FIX ===== */
+@media (min-width: 769px) {
+    /* 1. Push the links to the right side */
+    .nav-links {
+        margin-left: auto !important; /* This pushes the links to the right */
+        margin-right: 15px !important; /* Space before the language selector */
+        gap: 5px !important; /* Tighter, cleaner spacing between links */
+    }
+
+    /* 2. Fix "Get Quote" text splitting into two lines */
+    .nav-cta {
+        white-space: nowrap !important; /* Keeps "Get Quote" on one line */
+        margin-left: 15px !important; /* Adds space between "Coverage" and the button */
+    }
+
+    /* 3. Ensure proper alignment */
+    .nav-container {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; /* Allows items to sit naturally */
+    }
+    
+    .nav-right {
+        margin-left: 0 !important; /* Remove extra margin */
+    }
+}
     </style>
 </head>
 <body>
